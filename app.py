@@ -12,38 +12,41 @@ import pymysql
 import secrets
 
 
-conn = "mysql+pymysql://{0}:{1}@{2}/{3}".format(secrets.dbuser, secrets.dbpass, secrets.dbhost, secrets.dbname)
+conn = "mysql+pymysql://{0}:{1}@{2}/{3}".format(
+    secrets.dbuser, secrets.dbpass, secrets.dbhost, secrets.dbname)
 
 # Open database connection
-#dbhost = secrets.dbhost
-#dbuser = secrets.dbuser
-#dbpass = secrets.dbpass
-#dbname = secrets.dbname
+# dbhost = secrets.dbhost
+# dbuser = secrets.dbuser
+# dbpass = secrets.dbpass
+# dbname = secrets.dbname
 
-#db = pymysql.connect(dbhost, dbuser, dbpass, dbname)
+# db = pymysql.connect(dbhost, dbuser, dbpass, dbname)
 
 app = Flask(__name__)
 
 login = LoginManager(app)
 login.login_view = 'login'
-login.login_message_category = 'danger' # sets flash category for the default message 'Please log in to access this page.'
+# sets flash category for the default message 'Please log in to access this page.'
+login.login_message_category = 'danger'
 
 
-app.config['SECRET_KEY']='SuperSecretKey'
+app.config['SECRET_KEY'] = 'SuperSecretKey'
 # import os
 # = os.environ.get('SECRET_KEY')
 
 
 # Prevent --> pymysql.err.OperationalError) (2006, "MySQL server has gone away (BrokenPipeError(32, 'Broken pipe')
 class SQLAlchemy(_BaseSQLAlchemy):
-     def apply_pool_defaults(self, app, options):
+    def apply_pool_defaults(self, app, options):
         super(SQLAlchemy, self).apply_pool_defaults(app, options)
         options["pool_pre_ping"] = True
 # <-- MWC
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = conn
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # silence the deprecation warning
+# silence the deprecation warning
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
@@ -59,7 +62,8 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    confirm = PasswordField('Repeat Password', validators=[
+                            DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')
 
     def validate_username(self, username):
@@ -72,12 +76,14 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
 
+
 class NewUserForm(FlaskForm):
     name = StringField('Name: ', validators=[DataRequired()])
     username = StringField('Username: ', validators=[DataRequired()])
     email = StringField('Email: ', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    confirm = PasswordField('Repeat Password', validators=[
+                            DataRequired(), EqualTo('password')])
     access = IntegerField('Access: ')
     submit = SubmitField('Create User')
 
@@ -99,12 +105,14 @@ class UserDetailForm(FlaskForm):
     email = StringField('Email: ', validators=[DataRequired(), Email()])
     access = IntegerField('Access: ')
 
+
 class AccountDetailForm(FlaskForm):
     id = IntegerField('Id: ')
     name = StringField('Name: ', validators=[DataRequired()])
     email = StringField('Email: ', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    confirm = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    confirm = PasswordField('Repeat Password', validators=[
+                            DataRequired(), EqualTo('password')])
 
 
 ACCESS = {
@@ -112,6 +120,7 @@ ACCESS = {
     'user': 1,
     'admin': 2
 }
+
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -149,11 +158,9 @@ class User(UserMixin, db.Model):
         return '<User {0}>'.format(self.username)
 
 
-
-
 @login.user_loader
 def load_user(id):
-    return User.query.get(int(id))  #if this changes to a string, remove int
+    return User.query.get(int(id))  # if this changes to a string, remove int
 
 
 ### custom wrap to determine access level ###
@@ -161,10 +168,10 @@ def requires_access_level(access_level):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user.is_authenticated: #the user is not logged in
+            if not current_user.is_authenticated:  # the user is not logged in
                 return redirect(url_for('login'))
 
-            #user = User.query.filter_by(id=current_user.id).first()
+            # user = User.query.filter_by(id=current_user.id).first()
 
             if not current_user.allowed(access_level):
                 flash('You do not have access to this resource.', 'danger')
@@ -172,8 +179,6 @@ def requires_access_level(access_level):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-
-
 
 
 #### Routes ####
@@ -185,18 +190,23 @@ def index():
     return render_template('index.html', pageTitle='Flask App Home Page')
 
 # about
+
+
 @app.route('/about')
 def about():
     return render_template('about.html', pageTitle='About My Flask App')
 
 # registration
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(name=form.name.data, username=form.username.data, email=form.email.data)
+        user = User(name=form.name.data,
+                    username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -205,6 +215,8 @@ def register():
     return render_template('register.html',  pageTitle='Register | My Flask App', form=form)
 
 # user login
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -225,7 +237,7 @@ def login():
     return render_template('login.html',  pageTitle='Login | My Flask App', form=form)
 
 
-#logout
+# logout
 @app.route('/logout')
 def logout():
     logout_user()
@@ -256,7 +268,6 @@ def account():
     return render_template('account_detail.html', form=form, pageTitle='Your Account')
 
 
-
 ################ USER ACCESS FUNCTIONALITY OR GREATER ###################
 
 # dashboard
@@ -276,7 +287,9 @@ def control_panel():
     return render_template('control_panel.html', users=all_users, pageTitle='My Flask App Control Panel')
 
 # user details & update
-@app.route('/user_detail/<int:user_id>', methods=['GET','POST'])
+
+
+@app.route('/user_detail/<int:user_id>', methods=['GET', 'POST'])
 @requires_access_level(ACCESS['admin'])
 def user_detail(user_id):
     user = User.query.get_or_404(user_id)
@@ -289,13 +302,16 @@ def user_detail(user_id):
     return render_template('user_detail.html', form=form, pageTitle='User Details')
 
 # update user
+
+
 @app.route('/update_user/<int:user_id>', methods=['POST'])
 @requires_access_level(ACCESS['admin'])
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     form = UserDetailForm()
 
-    orig_user = user.username # get user details stored in the database - save username into a variable
+    # get user details stored in the database - save username into a variable
+    orig_user = user.username
 
     if form.validate_on_submit():
         user.name = form.name.data
@@ -303,8 +319,9 @@ def update_user(user_id):
 
         new_user = form.username.data
 
-        if new_user != orig_user: # if the form data is not the same as the original username
-            valid_user = User.query.filter_by(username=new_user).first() # query the database for the usernam
+        if new_user != orig_user:  # if the form data is not the same as the original username
+            # query the database for the usernam
+            valid_user = User.query.filter_by(username=new_user).first()
             if valid_user is not None:
                 flash("That username is already taken...", 'danger')
                 return redirect(url_for('control_panel'))
@@ -319,10 +336,12 @@ def update_user(user_id):
     return redirect(url_for('control_panel'))
 
 # delete user
+
+
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 @requires_access_level(ACCESS['admin'])
 def delete_user(user_id):
-    if request.method == 'POST': #if it's a POST request, delete the friend from the database
+    if request.method == 'POST':  # if it's a POST request, delete the friend from the database
         user = User.query.get_or_404(user_id)
         db.session.delete(user)
         db.session.commit()
@@ -332,12 +351,15 @@ def delete_user(user_id):
     return redirect(url_for('control_panel'))
 
 # new user
+
+
 @app.route('/new_user', methods=['GET', 'POST'])
 def new_user():
     form = NewUserForm()
 
     if request.method == 'POST' and form.validate_on_submit():
-        user = User(name=form.name.data, username=form.username.data, email=form.email.data)
+        user = User(name=form.name.data,
+                    username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
         user.access = request.form['access_lvl']
         db.session.add(user)
@@ -346,8 +368,6 @@ def new_user():
         return redirect(url_for('login'))
 
     return render_template('new_user.html',  pageTitle='New User | My Flask App', form=form)
-
-
 
 
 if __name__ == '__main__':
