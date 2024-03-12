@@ -11,9 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'al3rt.gpt'
-app.config['MAIL_PASSWORD'] = 'W;PEFzf-T4qts=H'
-app.config['MAIL_DEFAULT_SENDER'] = 'al3rt.gpt@proton.me'
+app.config['MAIL_USERNAME'] = 'Yuji Koyama'
+app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
+app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
 mail = Mail(app)
 db.init_app(app)
@@ -31,22 +31,21 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     print(user_id)
     return User.query.get(int(user_id))
-    # return User.get_by_id(int(user_id))
 
 
 @app.route('/')
-# @login_required
+@login_required
 def home():
     # Control access based on role
-    # if current_user.role == 'admin':
-    #     print("admin logged in")
-    #     # admin access area
-    # elif current_user.role == 'premium':
-    #     print("premium")
-    #     # premium access area
-    # else:
-    #     print("default")
-    #     # default access area
+    if current_user.role == 'admin':
+        print("admin logged in")
+        # admin access area
+    elif current_user.role == 'premium':
+        print("premium")
+        # premium access area
+    else:
+        print("default")
+        # default access area
     return render_template('home.html')
 
 
@@ -70,7 +69,6 @@ def login():
     return render_template('login.html', title='Sign In', form=form)
 
 
-
 @app.route('/logout')
 @login_required
 def logout():
@@ -87,8 +85,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        # send_email(user.email, 'Confirm Your Account',
-        #            'email/confirm', user=user, token=token)
+        send_email(user.email, 'Confirm Your Account',
+                   'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
