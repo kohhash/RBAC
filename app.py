@@ -11,9 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@example.com'
-app.config['MAIL_PASSWORD'] = 'your-email-password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your-email@example.com'
+app.config['MAIL_USERNAME'] = 'al3rt.gpt'
+app.config['MAIL_PASSWORD'] = 'W;PEFzf-T4qts=H'
+app.config['MAIL_DEFAULT_SENDER'] = 'al3rt.gpt@proton.me'
 
 mail = Mail(app)
 db.init_app(app)
@@ -21,7 +21,9 @@ db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-
+# with app.app_context():
+#     db.create_all()
+# exit(0)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -71,8 +73,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_email(user.email, 'Confirm Your Account',
-                   'email/confirm', user=user, token=token)
+        # send_email(user.email, 'Confirm Your Account',
+        #            'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
