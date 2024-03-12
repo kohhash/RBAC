@@ -31,22 +31,21 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     print(user_id)
     return User.query.get(int(user_id))
-    # return User.get_by_id(int(user_id))
 
 
 @app.route('/')
-# @login_required
+@login_required
 def home():
     # Control access based on role
-    # if current_user.role == 'admin':
-    #     print("admin logged in")
-    #     # admin access area
-    # elif current_user.role == 'premium':
-    #     print("premium")
-    #     # premium access area
-    # else:
-    #     print("default")
-    #     # default access area
+    if current_user.role == 'admin':
+        print("admin logged in")
+        # admin access area
+    elif current_user.role == 'premium':
+        print("premium")
+        # premium access area
+    else:
+        print("default")
+        # default access area
     return render_template('home.html')
 
 
@@ -68,7 +67,6 @@ def login():
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', title='Sign In', form=form)
-
 
 
 @app.route('/logout')
