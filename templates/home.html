@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Home</title>
-</head>
-<body>
+    {% if not user_authenticated %}
+    <nav>
+      <ul>
+        <!-- Possibly other items -->
+        <li><a href="/register">Register</a></li>
+        <li><a href="/login">Login</a></li>
+      </ul>
+    </nav>
+    {% endif %}
+  </head>
+  <body>
     <h1>Welcome, {{ current_user.username }}!</h1>
     {% if current_user.role == 'admin' %}
-        <p>You have Admin access.</p>
+    <p>You have Admin access.</p>
     {% elif current_user.role == 'premium' %}
-        <p>You have Premium access.</p>
+    <p>You have Premium access.</p>
     {% else %}
-        <p>You have Default access.</p>
+    <p>You have Default access.</p>
     {% endif %}
     <a href="{{ url_for('logout') }}">Logout</a>
-</body>
+  </body>
 </html>
