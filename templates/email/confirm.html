@@ -1,0 +1,8 @@
+<p>Hello {{ user.username }},</p>
+<p>Welcome! Please click on the link below to confirm your registration:</p>
+<p>
+  <a href="{{ url_for('confirm', token=token, _external=True) }}"
+    >Confirm Account</a
+  >
+</p>
+<p>This link will expire in one hour.</p>
