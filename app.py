@@ -11,9 +11,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'al3rt.gpt'
-app.config['MAIL_PASSWORD'] = 'W;PEFzf-T4qts=H'
-app.config['MAIL_DEFAULT_SENDER'] = 'al3rt.gpt@proton.me'
+app.config['MAIL_USERNAME'] = 'Yuji Koyama'
+app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
+app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
 mail = Mail(app)
 db.init_app(app)
@@ -85,8 +85,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        # send_email(user.email, 'Confirm Your Account',
-        #            'email/confirm', user=user, token=token)
+        send_email(user.email, 'Confirm Your Account',
+                   'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
@@ -114,8 +114,8 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             token = user.generate_confirmation_token()
-            # send_email(user.email, 'Reset Your Password',
-            #            'email/reset_password', token=token)
+            send_email(user.email, 'Reset Your Password',
+                       'email/reset_password', token=token)
         flash('An email with instructions to reset your password has been sent to you.')
         return redirect(url_for('login'))
     return render_template('reset_request.html', form=form)

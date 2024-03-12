@@ -1,8 +1,27 @@
-<p>Hello {{ user.username }},</p>
-<p>Welcome! Please click on the link below to confirm your registration:</p>
-<p>
-  <a href="{{ url_for('confirm', token=token, _external=True) }}"
-    >Confirm Account</a
-  >
-</p>
-<p>This link will expire in one hour.</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Confirm Account</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    a {
+      color: #32a852;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <p>Hello {{ user.username }},</p>
+  <p>Welcome! Please confirm your registration by clicking the link below:</p>
+  <p><a href="{{ url_for('confirm', token=token, _external=True) }}">Confirm Account</a></p>
+  <p>This link will expire in one hour.</p>
+</body>
+</html>

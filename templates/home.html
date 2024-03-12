@@ -3,25 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <title>Home</title>
-    {% if not user_authenticated %}
-    <nav>
-      <ul>
-        <!-- Possibly other items -->
-        <li><a href="/register">Register</a></li>
-        <li><a href="/login">Login</a></li>
-      </ul>
-    </nav>
-    {% endif %}
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      header,
+      footer {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1em;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      nav ul li {
+        display: inline;
+        margin-right: 20px;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .welcome-message {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .access-level {
+        margin: 20px 0;
+        font-size: 18px;
+        background: #e7e7e7;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .logout-button {
+        padding: 10px 20px;
+        background-color: #008cba;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .logout-button:hover {
+        background-color: #005f73;
+      }
+    </style>
   </head>
   <body>
-    <h1>Welcome, {{ current_user.username }}!</h1>
-    {% if current_user.role == 'admin' %}
-    <p>You have Admin access.</p>
-    {% elif current_user.role == 'premium' %}
-    <p>You have Premium access.</p>
-    {% else %}
-    <p>You have Default access.</p>
+    {% if not user_authenticated %}
+    <header>
+      <nav>
+        <ul>
+          <!-- Possibly other items -->
+          <li><a href="/register">Register</a></li>
+          <li><a href="/login">Login</a></li>
+        </ul>
+      </nav>
+    </header>
     {% endif %}
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <main>
+      <div class="welcome-message">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+      </div>
+      <div class="access-level">
+        {% if current_user.role == 'admin' %}
+        <p>You have Admin access.</p>
+        {% elif current_user.role == 'premium' %}
+        <p>You have Premium access.</p>
+        {% else %}
+        <p>You have Default access.</p>
+        {% endif %}
+      </div>
+    </main>
+    <footer>
+      <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    </footer>
   </body>
 </html>
