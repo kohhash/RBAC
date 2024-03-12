@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome, {{ current_user.username }}!</h1>
+    {% if current_user.role == 'admin' %}
+        <p>You have Admin access.</p>
+    {% elif current_user.role == 'premium' %}
+        <p>You have Premium access.</p>
+    {% else %}
+        <p>You have Default access.</p>
+    {% endif %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+</html>
