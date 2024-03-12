@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Login</title>
-</head>
-<body>
-<form method="post">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.username.label }}<br>
-        {{ form.username(size=32) }}<br>
-    </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(size=32) }}<br>
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
-</body>
+  </head>
+  <body>
+    <form method="post" action="/login">
+      {{ form.hidden_tag() }}
+      <p>
+        {{ form.username.label }}<br />
+        {{ form.username(size=32) }}<br />
+      </p>
+      <p>
+        {{ form.password.label }}<br />
+        {{ form.password(size=32) }}<br />
+      </p>
+      <p>{{ form.submit() }}</p>
+      <input type="submit" value="Login" />
+    </form>
+    <div>Don't have an account? <a href="/register">Register here</a>.</div>
+  </body>
 </html>
