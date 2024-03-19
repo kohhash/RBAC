@@ -1,82 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-        form {
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
+      form {
+        background-color: #fff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
 
-        input[type="text"],
-        input[type="password"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+      input[type="text"],
+      input[type="password"] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
 
-        input[type="submit"] {
-            width: calc(100% - 20px);
-            background-color: #008CBA;
-            color: white;
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+      input[type="submit"] {
+        width: calc(100% - 20px);
+        background-color: #008cba;
+        color: white;
+        padding: 10px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
 
-        input[type="submit"]:hover {
-            background-color: #005f73;
-        }
+      input[type="submit"]:hover {
+        background-color: #005f73;
+      }
 
-        a {
-            text-decoration: none;
-            color: #0275d8;
-        }
+      a {
+        text-decoration: none;
+        color: #0275d8;
+      }
 
-        .account-management {
-            text-align: center;
-            margin-top: 15px;
-        }
+      .account-management {
+        text-align: center;
+        margin-top: 15px;
+      }
 
-        a:hover {
-            text-decoration: underline;
-        }
+      a:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <form method="post" action="/login">
-        {{ form.hidden_tag() }}
+      {{ form.hidden_tag() }}
+      <div>
         <h1>Login</h1>
         <div>
-            {{ form.username.label }}<br />
-            {{ form.username(size=32, class_='input', placeholder='Username') }}<br />
+          {{ form.username.label }}<br />
+          {{ form.username(size=32, class_='input', placeholder='Username')
+          }}<br />
         </div>
         <div>
-            {{ form.password.label }}<br />
-            {{ form.password(size=32, class_='input', placeholder='Password') }}<br />
+          {{ form.password.label }}<br />
+          {{ form.password(size=32, class_='input', placeholder='Password')
+          }}<br />
         </div>
-        <div>{{ form.submit(class_='button') }}</div>
-        <div class="account-management">Don't have an account? <a href="/register">Register here</a>.</div>
-        <div class="account-management"><a href="/reset">Forgot Password?</a></div>
+        <div style="width: 100%">{{ form.submit(class_='button') }}</div>
+        <div class="account-management">
+          Don't have an account? <a href="/register">Register here</a>.
+        </div>
+        <div class="account-management">
+          <a href="/reset">Forgot Password?</a>
+        </div>
+      </div>
     </form>
-</body>
+  </body>
 </html>
