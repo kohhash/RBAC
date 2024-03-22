@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User
 from forms import LoginForm
-from flask_mail import Mail, Message
+# from flask_mail import Mail, Message
 from forms import LoginForm, RegistrationForm, ForgotPasswordForm, PasswordResetForm
 import openai
 import json
@@ -15,14 +15,14 @@ CORS(app)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'Yuji Koyama'
-app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
-app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
+# app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
+# app.config['MAIL_PORT'] = 587
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USERNAME'] = 'Yuji Koyama'
+# app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
+# app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
-mail = Mail(app)
+# mail = Mail(app)
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -139,12 +139,12 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.verify_password(form.password.data):
-            if user.confirmed:
-                login_user(user)  # This should log the user in
-                next_page = request.args.get('next')
-                return redirect(next_page or url_for('home'))
-            else:
-                flash('Please confirm your account first.', 'warning')
+            # if user.confirmed:
+            login_user(user)  # This should log the user in
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('home'))
+            # else:
+            # flash('Please confirm your account first.', 'warning')
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', title='Sign In', form=form)
@@ -163,9 +163,10 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data, username=form.username.data)
         user.password = form.password.data
+        user.confirmed = 1
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
+        # token = user.generate_confirmation_token()
         # send_email(user.email, 'Confirm Your Account',
         #            'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
@@ -193,10 +194,10 @@ def reset_request():
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = user.generate_confirmation_token()
-            # send_email(user.email, 'Reset Your Password',
-            #            'email/reset_password', token=token)
+        # if user:
+        # token = user.generate_confirmation_token()
+        # send_email(user.email, 'Reset Your Password',
+        #            'email/reset_password', token=token)
         flash('An email with instructions to reset your password has been sent to you.')
         return redirect(url_for('login'))
     return render_template('reset_request.html', form=form)
@@ -219,11 +220,11 @@ def reset_token(token):
     return render_template('reset_token.html', form=form)
 
 
-def send_email(to, subject, template, **kwargs):
-    msg = Message(subject, recipients=[to])
-    msg.body = render_template(template + '.txt', **kwargs)
-    msg.html = render_template(template + '.html', **kwargs)
-    mail.send(msg)
+# def send_email(to, subject, template, **kwargs):
+#     msg = Message(subject, recipients=[to])
+#     msg.body = render_template(template + '.txt', **kwargs)
+#     msg.html = render_template(template + '.html', **kwargs)
+#     mail.send(msg)
 
 # openai API
 
@@ -517,7 +518,6 @@ def get_messages_from_thread():
         print(e.status_code)
         print(e.response)
         return str(e.response)
-
 
 
 if __name__ == '__main__':

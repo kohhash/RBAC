@@ -60,6 +60,15 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       }
 
+      .plan-button {
+        padding: 10px 20px;
+        background-color: #3317d4;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
       .logout-button {
         padding: 10px 20px;
         background-color: #008cba;
@@ -72,10 +81,90 @@
       .logout-button:hover {
         background-color: #005f73;
       }
+
+      /* Modal styles */
+      /* Updated Modal styles */
+      /* Updated Modal styles with bigger Basic and Premium plan buttons */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #f9f9f9;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        width: 80%;
+        max-width: 400px; /* Adjust the maximum width as needed */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .modal-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .plans {
+        margin-bottom: 50vh;
+      }
+
+      .modal-button {
+        display: block;
+        width: 100%;
+        padding: 15px 20px; /* Increased padding for bigger buttons */
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px; /* Increased font size for bigger buttons */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .plan-group {
+        display: flex;
+      }
+
+      .basic-plan {
+        background-color: #5883b4;
+        color: white;
+      }
+
+      .premium-plan {
+        background-color: #d33ac6;
+        color: white;
+      }
+
+      .modal-button:hover {
+        background-color: #ddd;
+      }
     </style>
   </head>
   <body>
-    {% if not user_authenticated %}
     <header>
       <nav>
         <ul>
@@ -85,7 +174,6 @@
         </ul>
       </nav>
     </header>
-    {% endif %}
     <main>
       <div class="welcome-message">
         <h1>Welcome, {{ current_user.username }}!</h1>
@@ -99,9 +187,68 @@
         <p>You have Default access.</p>
         {% endif %}
       </div>
+      <button class="plan-button" id="changePlanBtn">Change Plan</button>
     </main>
     <footer>
       <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
     </footer>
+
+    <!-- Modal for plan selection -->
+    <!-- Updated Modal for plan selection -->
+    <div id="planModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="modal-title">Choose a Plan</h2>
+        <p class="plans">Select your desired plan:</p>
+        <div class="plan-group">
+          <button id="basicPlanBtn" class="modal-button basic-plan">
+            Basic Plan
+          </button>
+          <button id="premiumPlanBtn" class="modal-button premium-plan">
+            Premium Plan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Get the modal
+      var modal = document.getElementById("planModal");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("changePlanBtn");
+
+      // When the user clicks the button, open the modal
+      btn.onclick = function () {
+        modal.style.display = "block";
+      };
+
+      // When the user clicks on <span> (x), close the modal
+      var span = document.getElementsByClassName("close")[0];
+      span.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      // Handle selection of Basic Plan
+      var basicPlanBtn = document.getElementById("basicPlanBtn");
+      basicPlanBtn.onclick = function () {
+        alert("You have selected the Basic Plan.");
+        modal.style.display = "none";
+      };
+
+      // Handle selection of Premium Plan
+      var premiumPlanBtn = document.getElementById("premiumPlanBtn");
+      premiumPlanBtn.onclick = function () {
+        alert("You have selected the Premium Plan.");
+        modal.style.display = "none";
+      };
+
+      // Close the modal if the user clicks outside of it
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
   </body>
 </html>
