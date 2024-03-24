@@ -305,8 +305,6 @@ def admin_delete_user(user_id):
 @app.route('/openai', methods=['GET'])
 @login_required
 def openai_request():
-    # Retrieve the API key from a secure location
-    # api_key = get_api_key()
     return "Server is ALIVE!"
 
 
