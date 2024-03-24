@@ -124,9 +124,7 @@ def home():
     # Control access based on role
     if current_user.role == 'admin':
         print("admin logged in")
-        users = User.query.all()
-        return redirect(url_for('admin_users'))
-        return render_template('admin_manage_users.html', users=users)      
+        return render_template('home.html')
         # admin access area
     elif current_user.role == 'premium':
         print("premium")
@@ -227,12 +225,24 @@ def reset_token(token):
     return render_template('reset_token.html', form=form)
 
 
+@app.route('/admin-users')
+@login_required
+def redirect_route():
+    print("admin users////")
+    # Perform any necessary processing before the redirect
+    # Redirect to the desired route or URL
+    # Replace 'admin_users' with the actual route name
+    return redirect(url_for('admin_users'))
+
+
 @app.route('/admin/users')
 @login_required
 def admin_users():
+    print(current_user.role)
     if current_user.role != 'admin':
         return redirect(url_for('home'))
     users = User.query.all()
+    print(len(users))
     return render_template('admin_manage_users.html', users=users)
 
 

@@ -58,6 +58,8 @@
         padding: 10px;
         border-radius: 5px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: grid;
+        gap: 20px;
       }
 
       .plan-button {
@@ -149,6 +151,14 @@
         display: flex;
       }
 
+      .manage-users {
+        background-color: #31c23d;
+        color: white;
+        border: none;
+        padding: 10px;
+        text-align: center;
+      }
+
       .basic-plan {
         background-color: #5883b4;
         color: white;
@@ -181,10 +191,13 @@
       <div class="access-level">
         {% if current_user.role == 'admin' %}
         <p>You have Admin access.</p>
+        <a href="{{ url_for('admin_users') }}" class="manage-users"
+          >Manage Users</a
+        >
         {% elif current_user.role == 'premium' %}
         <p>You have Premium access.</p>
         {% else %}
-        <p>You have Default access.</p>
+        <p>You have Basic access.</p>
         {% endif %}
       </div>
       <button class="plan-button" id="changePlanBtn">Change Plan</button>
