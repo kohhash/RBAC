@@ -9,8 +9,12 @@ import json
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()
 
 app = Flask(__name__)
+csrf.init_app(app)
 CORS(app)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
@@ -120,6 +124,7 @@ def home():
     # Control access based on role
     if current_user.role == 'admin':
         print("admin logged in")
+        return render_template('home.html')
         # admin access area
     elif current_user.role == 'premium':
         print("premium")
@@ -219,6 +224,74 @@ def reset_token(token):
         return redirect(url_for('login'))
     return render_template('reset_token.html', form=form)
 
+
+@app.route('/admin-users')
+@login_required
+def redirect_route():
+    print("admin users////")
+    # Perform any necessary processing before the redirect
+    # Redirect to the desired route or URL
+    # Replace 'admin_users' with the actual route name
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    print(current_user.role)
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    users = User.query.all()
+    print(len(users))
+    return render_template('admin_manage_users.html', users=users)
+
+
+@app.route('/admin/users/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_user():
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.password = form.password.data
+        user.role = 'default'  # Set the default role or let the admin choose
+        db.session.add(user)
+        db.session.commit()
+        flash('User has been added.', 'success')
+        return redirect(url_for('admin_users'))
+    return render_template('register.html', form=form, title='Add User')
+
+
+@app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    user = User.query.get_or_404(user_id)
+    form = RegistrationForm(obj=user)
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        # Do not change the password unless a new one has been entered
+        if form.password.data:
+            user.password = form.password.data
+        db.session.commit()
+        flash('The user has been updated.', 'success')
+        return redirect(url_for('admin_users'))
+    return render_template('register.html', form=form, title='Edit User')
+
+
+@app.route('/admin/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def admin_delete_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('The user has been deleted.', 'success')
+    return redirect(url_for('admin_users'))
 
 # def send_email(to, subject, template, **kwargs):
 #     msg = Message(subject, recipients=[to])

@@ -38,7 +38,7 @@
         {{ form.email.label }}<br />
         {{ form.email(size=32) }}<br />
         {% for error in form.email.errors %}
-        <span class="error">[{{ error }}]</span>
+        <span class="error">{{ error }}</span>
         {% endfor %}
       </p>
       <p><input type="submit" value="Submit" /></p>
