@@ -38,14 +38,14 @@
         {{ form.new_password.label }}<br />
         {{ form.new_password(size=32) }}<br />
         {% for error in form.new_password.errors %}
-        <span class="error">[{{ error }}]</span>
+        <span class="error">{{ error }}</span>
         {% endfor %}
       </p>
       <p>
         {{ form.new_password2.label }}<br />
         {{ form.new_password2(size=32) }}<br />
         {% for error in form.new_password2.errors %}
-        <span class="error">[{{ error }}]</span>
+        <span class="error">{{ error }}</span>
         {% endfor %}
       </p>
       <p><input type="submit" value="Set Password" /></p>

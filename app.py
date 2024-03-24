@@ -2,27 +2,31 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User
 from forms import LoginForm
-from flask_mail import Mail, Message
+# from flask_mail import Mail, Message
 from forms import LoginForm, RegistrationForm, ForgotPasswordForm, PasswordResetForm
 import openai
 import json
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect()
 
 app = Flask(__name__)
+csrf.init_app(app)
 CORS(app)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'Yuji Koyama'
-app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
-app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
+# app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
+# app.config['MAIL_PORT'] = 587
+# app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USERNAME'] = 'Yuji Koyama'
+# app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
+# app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
-mail = Mail(app)
+# mail = Mail(app)
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -120,6 +124,7 @@ def home():
     # Control access based on role
     if current_user.role == 'admin':
         print("admin logged in")
+        return render_template('home.html')
         # admin access area
     elif current_user.role == 'premium':
         print("premium")
@@ -139,12 +144,12 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.verify_password(form.password.data):
-            if user.confirmed:
-                login_user(user)  # This should log the user in
-                next_page = request.args.get('next')
-                return redirect(next_page or url_for('home'))
-            else:
-                flash('Please confirm your account first.', 'warning')
+            # if user.confirmed:
+            login_user(user)  # This should log the user in
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('home'))
+            # else:
+            # flash('Please confirm your account first.', 'warning')
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', title='Sign In', form=form)
@@ -163,9 +168,10 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data, username=form.username.data)
         user.password = form.password.data
+        user.confirmed = 1
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
+        # token = user.generate_confirmation_token()
         # send_email(user.email, 'Confirm Your Account',
         #            'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
@@ -193,10 +199,10 @@ def reset_request():
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = user.generate_confirmation_token()
-            # send_email(user.email, 'Reset Your Password',
-            #            'email/reset_password', token=token)
+        # if user:
+        # token = user.generate_confirmation_token()
+        # send_email(user.email, 'Reset Your Password',
+        #            'email/reset_password', token=token)
         flash('An email with instructions to reset your password has been sent to you.')
         return redirect(url_for('login'))
     return render_template('reset_request.html', form=form)
@@ -219,11 +225,79 @@ def reset_token(token):
     return render_template('reset_token.html', form=form)
 
 
-def send_email(to, subject, template, **kwargs):
-    msg = Message(subject, recipients=[to])
-    msg.body = render_template(template + '.txt', **kwargs)
-    msg.html = render_template(template + '.html', **kwargs)
-    mail.send(msg)
+@app.route('/admin-users')
+@login_required
+def redirect_route():
+    print("admin users////")
+    # Perform any necessary processing before the redirect
+    # Redirect to the desired route or URL
+    # Replace 'admin_users' with the actual route name
+    return redirect(url_for('admin_users'))
+
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    print(current_user.role)
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    users = User.query.all()
+    print(len(users))
+    return render_template('admin_manage_users.html', users=users)
+
+
+@app.route('/admin/users/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_user():
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.password = form.password.data
+        user.role = 'default'  # Set the default role or let the admin choose
+        db.session.add(user)
+        db.session.commit()
+        flash('User has been added.', 'success')
+        return redirect(url_for('admin_users'))
+    return render_template('register.html', form=form, title='Add User')
+
+
+@app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    user = User.query.get_or_404(user_id)
+    form = RegistrationForm(obj=user)
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        # Do not change the password unless a new one has been entered
+        if form.password.data:
+            user.password = form.password.data
+        db.session.commit()
+        flash('The user has been updated.', 'success')
+        return redirect(url_for('admin_users'))
+    return render_template('register.html', form=form, title='Edit User')
+
+
+@app.route('/admin/users/delete/<int:user_id>', methods=['POST'])
+@login_required
+def admin_delete_user(user_id):
+    if current_user.role != 'admin':
+        return redirect(url_for('home'))
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('The user has been deleted.', 'success')
+    return redirect(url_for('admin_users'))
+
+# def send_email(to, subject, template, **kwargs):
+#     msg = Message(subject, recipients=[to])
+#     msg.body = render_template(template + '.txt', **kwargs)
+#     msg.html = render_template(template + '.html', **kwargs)
+#     mail.send(msg)
 
 # openai API
 
@@ -517,7 +591,6 @@ def get_messages_from_thread():
         print(e.status_code)
         print(e.response)
         return str(e.response)
-
 
 
 if __name__ == '__main__':
