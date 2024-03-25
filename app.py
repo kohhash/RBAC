@@ -9,12 +9,12 @@ import json
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
-from flask_wtf.csrf import CSRFProtect
+# from flask_wtf.csrf import CSRFProtect
 
-csrf = CSRFProtect()
+# csrf = CSRFProtect()
 
 app = Flask(__name__)
-csrf.init_app(app)
+# csrf.init_app(app)
 CORS(app)
 
 app.config['SECRET_KEY'] = 'your_secret_key'
