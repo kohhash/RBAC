@@ -78,6 +78,15 @@
         padding: 10px;
         margin: 10px;
       }
+
+      select {
+        /* Styles for the select dropdown */
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9; /* New background color */
+        color: #333; /* Text color */
+      }
     </style>
   </head>
   <body>
@@ -98,7 +107,34 @@
         <td>{{ user.id }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
+        <td>
+          <form
+            action="{{ url_for('admin_change_user_role', user_id=user.id) }}"
+            method="post"
+          >
+            <select name="new_role" required>
+              <option value="">Select Role</option>
+              {% if user.role == "admin" %}
+              <option value="admin" selected>Admin</option>
+              {% else %}
+              <option value="admin">Admin</option>
+              {% endif %} {% if user.role == "premium" %}
+              <option value="premium" selected>Premium</option>
+              {% else %}
+              <option value="premium">Premium</option>
+              {% endif %} {% if user.role == "default" %}
+              <option value="default" selected>Default</option>
+              {% else %}
+              <option value="default">Default</option>
+              {% endif %}
+            </select>
+            <input
+              type="submit"
+              value="Change Role"
+              style="background-color: #095194"
+            />
+          </form>
+        </td>
         <td>
           <form
             action="{{ url_for('admin_delete_user', user_id=user.id) }}"

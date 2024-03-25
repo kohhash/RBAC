@@ -293,6 +293,26 @@ def admin_delete_user(user_id):
     flash('The user has been deleted.', 'success')
     return redirect(url_for('admin_users'))
 
+
+@app.route('/admin/users/change-role/<int:user_id>', methods=['POST'])
+@login_required
+def admin_change_user_role(user_id):
+    if current_user.role != 'admin':
+        flash('You are not authorized to change user roles.', 'danger')
+        return redirect(url_for('home'))
+
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get('new_role')
+
+    if new_role not in ['admin', 'premium', 'default']:
+        flash('Invalid role selected.', 'danger')
+        return redirect(url_for('admin_users'))
+
+    user.role = new_role
+    db.session.commit()
+    flash(f'User role updated to {new_role}.', 'success')
+    return redirect(url_for('admin_users'))
+
 # def send_email(to, subject, template, **kwargs):
 #     msg = Message(subject, recipients=[to])
 #     msg.body = render_template(template + '.txt', **kwargs)
