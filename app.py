@@ -15,7 +15,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 # csrf.init_app(app)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*",
+     "methods": ["GET", "POST", "DELETE", "PUT", "PATCH"]}})
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
