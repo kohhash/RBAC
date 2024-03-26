@@ -1,3 +1,4 @@
+from time import sleep
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User
@@ -556,8 +557,11 @@ def run_assistant():
 
         messages = client.beta.threads.messages.list(
             thread_id=thread_id,
-            limit=2
+            limit=1
         )
+        # sleep(0.5)
+        print(messages)
+        
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
