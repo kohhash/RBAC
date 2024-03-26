@@ -524,7 +524,7 @@ def modify_thread():
 
 
 @app.route('/openai/run', methods=['POST'])
-@login_required
+# @login_required
 def run_assistant():
     try:
         data = request.json
