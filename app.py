@@ -538,14 +538,14 @@ def run_assistant():
             content=content
         )
         print(",,,,,,,,,,,,,,,,,,")
-        print(message)
+        # print(message)
 
         run = client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
         )
         print("requesting...")
-        print(run)
+        # print(run)
 
         run = client.beta.threads.runs.retrieve(
             thread_id=thread_id,
@@ -553,15 +553,16 @@ def run_assistant():
         )
 
         print("response status")
-        print(run)
-
+        # print(run)
+        
         messages = client.beta.threads.messages.list(
             thread_id=thread_id,
             limit=1
         )
         # sleep(0.5)
+        print("messages")
         print(messages)
-        
+
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
