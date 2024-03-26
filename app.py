@@ -524,7 +524,7 @@ def modify_thread():
 
 
 @app.route('/openai/run', methods=['POST'])
-# @login_required
+@login_required
 def run_assistant():
     try:
         data = request.json
@@ -613,4 +613,4 @@ def get_messages_from_thread():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True)
