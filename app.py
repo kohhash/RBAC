@@ -537,52 +537,36 @@ def run_assistant():
             role="user",
             content=content
         )
-        print(",,,,,,,,,,,,,,,,,,")
-        # print(message)
 
         run = client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
         )
-        print("requesting...")
-        # print(run)
 
         run = client.beta.threads.runs.retrieve(
             thread_id=thread_id,
             run_id=run.id
         )
-
-        print("response status")
-        # print(run)
-
         messages = None
         role = "user"
         content = ""
-        print(len(content))
         while role == "user" or len(content) == 0:
-            print("checking role...")
-            sleep(0.5)
+            sleep(0.3)
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id,
                 limit=1
             )
             role = message_to_dict(messages.data[0])["role"]
-            print("============")
-            print(role)
             if role == "assistant":
                 content = message_to_dict(messages.data[0])["content"]
                 if content:
-                    content = content[0]["text"]
-            print(content)
-            print(len(content))
-            print("============")
-        print("got msg from assistant")
-        print("++++++++++++++++++++++++++++++++")
+                    content = content[0]["text"]            
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
         messages_json_obj = [
             obj for obj in messages_json_obj if obj.get("role") != "user"]
+        print(messages_json_obj[0])
         return messages_json_obj[0]
     except openai.APIConnectionError as e:
         print("The server could not be reached")
