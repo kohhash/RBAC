@@ -572,8 +572,9 @@ def run_assistant():
             if role == "assistant":
                 content = message_to_dict(messages.data[0])["content"]
                 if content:
-                    content = content[0]
+                    content = content[0]["text"]
             print(content)
+            print(len(content))
             print("============")
         print("got msg from assistant")
         print("++++++++++++++++++++++++++++++++")
