@@ -560,7 +560,8 @@ def run_assistant():
             limit=1
         )
 
-        print(messages.data)
+        print(messages.data[0])
+        print(message_to_dict(messages.data[0]))
 
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
