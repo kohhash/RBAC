@@ -554,18 +554,13 @@ def run_assistant():
 
         print("response status")
         # print(run)
-        
+
         messages = client.beta.threads.messages.list(
             thread_id=thread_id,
             limit=1
         )
-        
-        if messages and len(messages) > 0:
-            message = messages[0]
-            print(message)
-        # sleep(0.5)
-        print("messages")
-        print(messages)
+
+        print(messages.data)
 
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
