@@ -558,6 +558,7 @@ def run_assistant():
         messages = None
         role = "user"
         while role is not "user":
+            print("checking role...")
             sleep(0.5)
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id,
