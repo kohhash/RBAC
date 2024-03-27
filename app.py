@@ -559,7 +559,7 @@ def run_assistant():
         role = "user"
         content = ""
         print(len(content))
-        while role == "user" and len(content) > 0:
+        while role == "user" or len(content) > 0:
             print("checking role...")
             sleep(0.5)
             messages = client.beta.threads.messages.list(
@@ -574,7 +574,6 @@ def run_assistant():
             print(content)
             print("============")
         print("got msg from assistant")
-        print(message_to_dict(messages.data[0])["content"])
         print("++++++++++++++++++++++++++++++++")
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
