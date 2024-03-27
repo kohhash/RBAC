@@ -558,6 +558,7 @@ def run_assistant():
         messages = None
         role = "user"
         content = ""
+        print(len(content))
         while role == "user" and len(content) > 0:
             print("checking role...")
             sleep(0.5)
