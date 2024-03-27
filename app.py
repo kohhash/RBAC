@@ -559,6 +559,10 @@ def run_assistant():
             thread_id=thread_id,
             limit=1
         )
+        
+        if messages and len(messages) > 0:
+            message = messages[0]
+            print(message)
         # sleep(0.5)
         print("messages")
         print(messages)
