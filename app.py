@@ -555,17 +555,15 @@ def run_assistant():
         print("response status")
         # print(run)
 
-        messages = client.beta.threads.messages.list(
-            thread_id=thread_id,
-            limit=1
-        )
+        messages = None
+        role = "user"
         while role is "user":
-            role = message_to_dict(messages.data[0])["role"]
             sleep(0.5)
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id,
                 limit=1
             )
+            role = message_to_dict(messages.data[0])["role"]
             print("============")
             print(role)
             print("============")
