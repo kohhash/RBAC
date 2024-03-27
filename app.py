@@ -551,7 +551,8 @@ def run_assistant():
         role = "user"
         content = ""
         while role == "user" or len(content) == 0:
-            sleep(0.3)
+            sleep(0.5)
+            print("getting msg again...")
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id,
                 limit=1
@@ -566,7 +567,6 @@ def run_assistant():
         messages_json_obj = json.loads(messages_json_str)
         messages_json_obj = [
             obj for obj in messages_json_obj if obj.get("role") != "user"]
-        print(messages_json_obj[0])
         return messages_json_obj[0]
     except openai.APIConnectionError as e:
         print("The server could not be reached")
