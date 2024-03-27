@@ -569,7 +569,8 @@ def run_assistant():
             print(role)
             print("============")
         print("got msg from assistant")
-
+        print(message_to_dict(messages.data[0]))
+        print("++++++++++++++++++++++++++++++++")
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
