@@ -187,6 +187,7 @@
       <div class="welcome-message">
         <h1>Welcome, {{ current_user.username }}!</h1>
       </div>
+      <a href="#" onclick="hideURL()">Download Extension</a>
       <div class="access-level">
         {% if current_user.role == 'admin' %}
         <p>You have Admin access.</p>
@@ -224,6 +225,16 @@
     </div>
 
     <script>
+      // Function to hide the URL in the status bar
+      function hideURL() {
+        // Prevent the default link behavior
+        event.preventDefault();
+        // Perform the desired action (e.g., open a new page)
+        window.open(
+          "https://github.com/Yuji7805/chatgpt-chrome-extension/archive/refs/heads/main.zip",
+          "_blank"
+        );
+      }
       // Get the modal
       var modal = document.getElementById("planModal");
 
