@@ -616,4 +616,4 @@ def get_messages_from_thread():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=80)
