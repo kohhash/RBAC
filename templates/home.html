@@ -180,6 +180,9 @@
           <!-- Possibly other items -->
           <li><a href="/register">Register</a></li>
           <li><a href="/login">Login</a></li>
+          <li>
+            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+          </li>
         </ul>
       </nav>
     </header>
@@ -202,8 +205,8 @@
       </div>
       <button class="plan-button" id="changePlanBtn">Change Plan</button>
     </main>
-    <footer>
-      <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+    <footer>      
+      Copyright 2024, Posydn Labs. All rights reserved
     </footer>
 
     <!-- Modal for plan selection -->
