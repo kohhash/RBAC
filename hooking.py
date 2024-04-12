@@ -7,7 +7,7 @@ app = Flask(__name__)
 @app.route('/webhook', methods=['POST'])
 def github_webhook():
     data = request.json
-    if data['ref'] == 'refs/heads/main':  # Adjust branch name as needed
+    if data['ref'] == 'refs/heads/main':
         # Perform git pull
         subprocess.run(['git', 'pull'])
         return 'Git pull successful', 200
