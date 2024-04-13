@@ -20,6 +20,7 @@
         color: white;
         text-align: center;
         padding: 1em;
+        align-items: center;
       }
 
       main {
@@ -27,7 +28,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
       }
 
       nav ul {
@@ -171,25 +171,79 @@
       .modal-button:hover {
         background-color: #ddd;
       }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        margin-right: 40px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 120px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        right: 0px;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #f1f1f1;
+      }
+
+      .description {
+        font-size: xx-large;
+        padding-left: 100px;
+        padding-right: 100px;
+        text-align: justify;
+        margin-top: 80px;
+        margin-bottom: 80px;
+        font-family: fantasy;
+      }
     </style>
   </head>
   <body>
-    <header>
-      <nav>
-        <ul>
-          <!-- Possibly other items -->
-          <li><a href="/register">Register</a></li>
-          <li><a href="/login">Login</a></li>
-          <li>
-            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
-          </li>
-        </ul>
-      </nav>
+    <header style="display: flex">
+      <h1 style="width: 100%">Age of Personalization</h1>
+      <div class="dropdown">
+        <img
+          src="https://i.ibb.co/nLdTFXS/icon3.png"
+          alt="Logo"
+          width="50"
+          height="50"
+        />
+        <!-- Replace with your logo image path -->
+        <div class="dropdown-content">
+          <!-- <a href="/register">Register</a>
+          <a href="/login">Login</a> -->
+          <a href="#">{{ current_user.username }}</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
     </header>
     <main>
-      <div class="welcome-message">
-        <h1>Welcome, {{ current_user.username }}!</h1>
+      <div class="description">
+        Tailored to address
+        unique requirements, this application harnesses cutting-edge AI
+        technology to deliver tailored solutions, whether in content generation,
+        language understanding, or conversational interfaces. By integrating state-of-the-art AI capabilities, this
+        bespoke application offers a seamless and intuitive experience, driving
+        efficiency and productivity across a wide range of use cases.
       </div>
+      <!-- <div class="welcome-message">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+      </div> -->
       <a href="#" onclick="hideURL()">Download Extension</a>
       <div class="access-level">
         {% if current_user.role == 'admin' %}
@@ -205,9 +259,7 @@
       </div>
       <button class="plan-button" id="changePlanBtn">Change Plan</button>
     </main>
-    <footer>      
-      Copyright 2024, Posydn Labs. All rights reserved
-    </footer>
+    <footer>Copyright 2024, Posydn Labs. All rights reserved</footer>
 
     <!-- Modal for plan selection -->
     <!-- Updated Modal for plan selection -->
