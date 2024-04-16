@@ -61,6 +61,16 @@
         text-decoration: underline;
       }
     </style>
+    <script>
+      function togglePassword() {
+        var passwordField = document.getElementById("password");
+        if (passwordField.type === "password") {
+          passwordField.type = "text";
+        } else {
+          passwordField.type = "password";
+        }
+      }
+    </script>
   </head>
   <body>
     <form method="post" action="/login">
@@ -81,8 +91,21 @@
         </div>
         <div>
           {{ form.password.label }}<br />
-          {{ form.password(size=32, class_='input', placeholder='Password')
-          }}<br />
+          <!-- Add an ID to the password input field for JavaScript access -->
+          <input
+            type="password"
+            id="password"
+            name="password"
+            size="32"
+            class="input"
+            placeholder="Password"
+          /><br />
+          <!-- Add a checkbox to toggle password visibility -->
+          <input
+            type="checkbox"
+            onclick="togglePassword()"
+          />
+          <label for="showPassword">Show Password</label>
         </div>
         <div style="width: 100%">{{ form.submit(class_='button') }}</div>
         <div class="account-management">
