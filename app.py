@@ -1,9 +1,12 @@
+from flask import current_app
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import SignatureExpired, BadSignature
 from time import sleep
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User
 from forms import LoginForm
-# from flask_mail import Mail, Message
+from flask_mail import Mail, Message
 from forms import LoginForm, RegistrationForm, ForgotPasswordForm, PasswordResetForm
 import openai
 import json
@@ -21,14 +24,17 @@ CORS(app, resources={r"/*": {"origins": "*",
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-# app.config['MAIL_SERVER'] = 'smtp.yourmailserver.com'
-# app.config['MAIL_PORT'] = 587
-# app.config['MAIL_USE_TLS'] = True
-# app.config['MAIL_USERNAME'] = 'Yuji Koyama'
-# app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
-# app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
-# mail = Mail(app)
+# mail verification
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'yujikoyama485@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
+app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
+
+mail = Mail(app)
+
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -170,10 +176,10 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data, username=form.username.data)
         user.password = form.password.data
-        user.confirmed = 1
+                
         db.session.add(user)
         db.session.commit()
-        # token = user.generate_confirmation_token()
+        token = user.generate_confirmation_token()
         # send_email(user.email, 'Confirm Your Account',
         #            'email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you by email.')
@@ -315,11 +321,6 @@ def admin_change_user_role(user_id):
     flash(f'User role updated to {new_role}.', 'success')
     return redirect(url_for('admin_users'))
 
-# def send_email(to, subject, template, **kwargs):
-#     msg = Message(subject, recipients=[to])
-#     msg.body = render_template(template + '.txt', **kwargs)
-#     msg.html = render_template(template + '.html', **kwargs)
-#     mail.send(msg)
 
 # openai API
 
@@ -561,7 +562,7 @@ def run_assistant():
             if role == "assistant":
                 content = message_to_dict(messages.data[0])["content"]
                 if content:
-                    content = content[0]["text"]            
+                    content = content[0]["text"]
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
