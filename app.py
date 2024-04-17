@@ -225,7 +225,7 @@ def reset_request():
         if user:
             token = user.generate_reset_token()
             send_verification_msg(
-                [user.email], 'Reset Your Password', token=token, type='reset')            
+                [user.email], 'Reset Your Password', token=token, type='reset')
         flash('An email with instructions to reset your password has been sent to you.')
         return render_template("verify-reset.html", email=user.email)
     return render_template('reset_request.html', form=form)
@@ -242,12 +242,17 @@ def reset_token(token):
     except:
         return False
     user = load_user(data.get('reset'))
-    print(user.id)
+    print(user)
     if not user:
         flash('That is an invalid or expired token')
         return redirect(url_for('reset_request'))
     form = PasswordResetForm()
+    print(form)
+    print(form.validate_on_submit())
     if form.validate_on_submit():
+        print("reset validation")
+        print(form.new_password.data)
+        user.reset_password(token, form.new_password.data)
         user.password = form.new_password.data
         db.session.commit()
         flash('Your password has been updated!')

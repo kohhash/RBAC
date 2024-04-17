@@ -48,7 +48,7 @@ class User(UserMixin, db.Model):
         return s.dumps({'reset': self.id}).decode('utf-8')
 
     @staticmethod
-    def verify_reset_token(token, new_password):
+    def reset_password(token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token.encode('utf-8'))
