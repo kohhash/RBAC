@@ -48,7 +48,7 @@ class User(UserMixin, db.Model):
         return s.dumps({'reset': self.id}).decode('utf-8')
 
     @staticmethod
-    def reset_password(token, new_password):
+    def verify_reset_token(token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
             data = s.loads(token.encode('utf-8'))
@@ -60,16 +60,3 @@ class User(UserMixin, db.Model):
         user.password = new_password
         db.session.commit()
         return True
-
-
-    @staticmethod
-    def verify_reset_token(token):
-        s = URLSafeSerializer(current_app.config['SECRET_KEY'])
-        try:
-            user_id = s.loads(token)
-        except Exception as e:
-            # Token is invalid or expired
-            return None
-        # Check if the user exists in the database
-        user = User.query.get(user_id)
-        return user
