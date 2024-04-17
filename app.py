@@ -161,12 +161,13 @@ def login():
                 next_page = request.args.get('next')
                 return redirect(next_page or url_for('home'))
             else:
-                print("show failed..: ", user.email)
                 flash('Please confirm your account first.', 'warning')
                 return render_template(
                     "email_verification_failed.html", email=user.email)
         else:
             flash('Invalid username or password.', 'danger')
+            form.error.data = "Invalid username or password."
+            render_template('login.html', title='Sign In', form=form)
     return render_template('login.html', title='Sign In', form=form)
 
 

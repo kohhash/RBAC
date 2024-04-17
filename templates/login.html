@@ -101,10 +101,7 @@
             placeholder="Password"
           /><br />
           <!-- Add a checkbox to toggle password visibility -->
-          <input
-            type="checkbox"
-            onclick="togglePassword()"
-          />
+          <input type="checkbox" onclick="togglePassword()" />
           <label for="showPassword">Show Password</label>
         </div>
         <div style="width: 100%">{{ form.submit(class_='button') }}</div>
@@ -114,6 +111,9 @@
         <div class="account-management">
           <a href="/reset">Forgot Password?</a>
         </div>
+        {% if form.error.data != "" %}
+        <p style="color: red">{{ form.error.data }}</p>
+        {% endif %}
       </div>
     </form>
   </body>
