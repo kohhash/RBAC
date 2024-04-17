@@ -182,8 +182,8 @@ def register():
                 
         db.session.add(user)
         db.session.commit()
-        # token = user.generate_confirmation_token()
-        # send_verification_msg([user.email], "Verification Email:", token=token)
+        token = user.generate_confirmation_token()
+        send_verification_msg([user.email], "Verification Email:", token=token)
         flash('A confirmation email has been sent to you by email.')
         return render_template('verify.html')
     return render_template('register.html', form=form)
@@ -192,6 +192,7 @@ def register():
 @app.route('/confirm/<token>')
 @login_required
 def confirm(token):
+    print(current_user.confirmed)
     if current_user.confirmed:
         return redirect(url_for('home'))
     if current_user.confirm(token):
@@ -336,7 +337,7 @@ def send_verification_msg(recipients, subject, token):
                 <p>Hi there!</p>
                 <p>This is a verification message from our script.</p>
                 <p>Please verify your account by clicking on the link below:</p>
-                <a href="http://192.168.142.193:5000/confirm/{token}">Verify Account</a>
+                <a href="https://al3rt.me/confirm/{token}">Verify Account</a>
                 <p>Thank you!</p>
             </body>
         </html>
