@@ -1,3 +1,6 @@
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
@@ -180,10 +183,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        # send_email(user.email, 'Confirm Your Account',
-        #            'email/confirm', user=user, token=token)
+        send_verification_msg([user.email], "Verification Email:", token=token)
         flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('login'))
+        return redirect(url_for('verify'))
     return render_template('register.html', form=form)
 
 
@@ -193,6 +195,7 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('home'))
     if current_user.confirm(token):
+        current_user.confirmed = True
         db.session.commit()
         flash('You have confirmed your account. Thanks!')
     else:
@@ -321,6 +324,50 @@ def admin_change_user_role(user_id):
     flash(f'User role updated to {new_role}.', 'success')
     return redirect(url_for('admin_users'))
 
+# send_email(user.email, 'Confirm Your Account',
+#            'email/confirm', user=user, token=token)
+
+
+def send_verification_msg(recipients, subject, token):
+    html_content = f"""
+        <html>
+            <head></head>
+            <body>
+                <p>Hi there!</p>
+                <p>This is a verification message from our script.</p>
+                <p>Please verify your account by clicking on the link below:</p>
+                <a href="http://192.168.142.193:5000/confirm/{token}">Verify Account</a>
+                <p>Thank you!</p>
+            </body>
+        </html>
+        """
+    """
+    Sends a verification message to the given recipients with specified subject and HTML content
+    """
+    GMAIL_USERNAME = "al3rt.me.noreply"
+    GMAIL_APP_PASSWORD = "hexc mzen fxmj lacp"
+
+    # Create a multipart message
+    msg = MIMEMultipart()
+    msg["Subject"] = subject
+    msg["To"] = ", ".join(recipients)
+    msg["From"] = f"{GMAIL_USERNAME}@gmail.com"
+
+    # Attach the HTML part
+    part = MIMEText(html_content, 'html')
+    msg.attach(part)
+
+    try:
+        # Connect to the Gmail SMTP server and send the email
+        smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        smtp_server.login(GMAIL_USERNAME, GMAIL_APP_PASSWORD)
+        smtp_server.sendmail(msg["From"], recipients, msg.as_string())
+    except smtplib.SMTPException as e:
+        print(f"An error occurred during SMTP communication: {e}")
+    else:
+        print("Verification email sent successfully!")
+    finally:
+        smtp_server.quit()
 
 # openai API
 
