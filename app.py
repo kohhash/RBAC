@@ -223,7 +223,7 @@ def reset_request():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            token = user.generate_confirmation_token()
+            token = user.generate_reset_token()
             send_verification_msg(
                 [user.email], 'Reset Your Password', token=token, type='reset')            
         flash('An email with instructions to reset your password has been sent to you.')
@@ -236,11 +236,13 @@ def reset_token(token):
     if not current_user.is_anonymous:
         return redirect(url_for('home'))
     s = Serializer(current_app.config['SECRET_KEY'])
+    data = ''
     try:
         data = s.loads(token.encode('utf-8'))
     except:
         return False
-    user = User.query.get(data.get('reset'))
+    user = load_user(data.get('reset'))
+    print(user.id)
     if not user:
         flash('That is an invalid or expired token')
         return redirect(url_for('reset_request'))
