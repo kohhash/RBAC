@@ -64,7 +64,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def verify_reset_token(token):
-        s = URLSafeSerializer(app.config['SECRET_KEY'])
+        s = URLSafeSerializer(current_app.config['SECRET_KEY'])
         try:
             user_id = s.loads(token)
         except Exception as e:
