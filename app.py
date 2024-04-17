@@ -225,9 +225,9 @@ def reset_request():
         if user:
             token = user.generate_confirmation_token()
             send_verification_msg(
-                [user.email], 'Reset Your Password', token=token, type='reset')
+                [user.email], 'Reset Your Password', token=token, type='reset')            
         flash('An email with instructions to reset your password has been sent to you.')
-        return redirect(url_for('login'))
+        return render_template("verify-reset.html", email=user.email)
     return render_template('reset_request.html', form=form)
 
 
