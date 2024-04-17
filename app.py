@@ -155,12 +155,14 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.verify_password(form.password.data):
+            print("user confirmed: ", user.confirmed)
             if user.confirmed:
                 login_user(user)  # This should log the user in
                 next_page = request.args.get('next')
                 return redirect(next_page or url_for('home'))
             else:
-                render_template("email_verification_failed.html", email=user.email)
+                render_template(
+                    "email_verification_failed.html", email=user.email)
                 flash('Please confirm your account first.', 'warning')
         else:
             flash('Invalid username or password.', 'danger')
@@ -186,7 +188,7 @@ def register():
         token = user.generate_confirmation_token()
         send_verification_msg([user.email], "Verification Email:", token=token)
         flash('A confirmation email has been sent to you by email.')
-        return render_template('verify.html', email = user.email)
+        return render_template('verify.html', email=user.email)
     return render_template('register.html', form=form)
 
 
