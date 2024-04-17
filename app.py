@@ -160,10 +160,11 @@ def login():
                 login_user(user)  # This should log the user in
                 next_page = request.args.get('next')
                 return redirect(next_page or url_for('home'))
-            else:
+            else:      
+                print("show failed..")          
+                flash('Please confirm your account first.', 'warning')
                 render_template(
                     "email_verification_failed.html", email=user.email)
-                flash('Please confirm your account first.', 'warning')
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', title='Sign In', form=form)
