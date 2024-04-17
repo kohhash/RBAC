@@ -182,10 +182,10 @@ def register():
                 
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
-        send_verification_msg([user.email], "Verification Email:", token=token)
+        # token = user.generate_confirmation_token()
+        # send_verification_msg([user.email], "Verification Email:", token=token)
         flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('verify'))
+        return render_template('verify.html')
     return render_template('register.html', form=form)
 
 
