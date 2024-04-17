@@ -179,13 +179,13 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data, username=form.username.data)
         user.password = form.password.data
-                
+
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
         send_verification_msg([user.email], "Verification Email:", token=token)
         flash('A confirmation email has been sent to you by email.')
-        return render_template('verify.html')
+        return render_template('verify.html', {"email": user.email})
     return render_template('register.html', form=form)
 
 
