@@ -235,7 +235,12 @@ def reset_request():
 def reset_token(token):
     if not current_user.is_anonymous:
         return redirect(url_for('home'))
-    user = User.verify_reset_token(token)
+    s = Serializer(current_app.config['SECRET_KEY'])
+    try:
+        data = s.loads(token.encode('utf-8'))
+    except:
+        return False
+    user = User.query.get(data.get('reset'))
     if not user:
         flash('That is an invalid or expired token')
         return redirect(url_for('reset_request'))
