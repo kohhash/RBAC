@@ -4,44 +4,68 @@
     <title>Reset Password</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f9;
         margin: 0;
         padding: 20px;
-        background-color: #f7f7f7;
+        color: #333;
       }
-      form {
-        background-color: #fff;
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
         padding: 20px;
-        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
       }
-      input[type="submit"] {
-        background-color: #3273dc;
-        color: white;
-        padding: 10px 15px;
+      h1 {
+        color: #4a90e2;
+      }
+      p {
+        font-size: 18px;
+        line-height: 1.5;
+      }
+
+      .submit {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 20px;
+        background-color: #33e23b;
+        border-radius: 4px;
         border: none;
-        border-radius: 5px;
-        cursor: pointer;
       }
-      input[type="submit"]:hover {
-        background-color: #2759a8;
-      }
-      .error {
-        color: red;
+      .submit:hover {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        font-size: 20px;
+        background-color: #06910d;
+        border-radius: 4px;
+        border: none;
       }
     </style>
   </head>
   <body>
-    <h1>Reset Password</h1>
-    <form method="post">
-      {{ form.hidden_tag() }}
-      <p>
-        {{ form.email.label }}<br />
-        {{ form.email(size=32) }}<br />
-        {% for error in form.email.errors %}
-        <span class="error">{{ error }}</span>
-        {% endfor %}
-      </p>
-      <p><input type="submit" value="Submit" /></p>
-    </form>
+    <div class="container">
+      <h1>Reset Password</h1>
+      <form method="post">
+        {{ form.hidden_tag() }}
+        <p
+          style="
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+          "
+        >
+          {{ form.email.label }}<br />
+          {{ form.email(size=32) }}<br />
+          {% for error in form.email.errors %}
+          <span class="error">{{ error }}</span>
+          {% endfor %}
+          <input type="submit" value="Submit" class="submit" />
+        </p>
+      </form>
+    </div>
   </body>
 </html>

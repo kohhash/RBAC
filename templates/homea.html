@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Home</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      header,
+      footer {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 1em;
+        align-items: center;
+        box-shadow: 0px 20px 12px 1px #0000001f;
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      nav ul li {
+        display: inline;
+        margin-right: 20px;
+      }
+
+      nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .welcome-message {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .access-level {
+        margin: 20px 0;
+        font-size: 18px;
+        background: #e7e7e7;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: grid;
+        gap: 20px;
+      }
+
+      .plan-button {
+        padding: 10px 20px;
+        background-color: #3317d4;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .logout-button {
+        padding: 10px 20px;
+        background-color: #008cba;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .logout-button:hover {
+        background-color: #005f73;
+      }
+
+      /* Modal styles */
+      /* Updated Modal styles */
+      /* Updated Modal styles with bigger Basic and Premium plan buttons */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #f9f9f9;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        width: 80%;
+        max-width: 400px; /* Adjust the maximum width as needed */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: #333;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .modal-title {
+        font-size: 24px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .plans {
+        margin-bottom: 30vh;
+      }
+
+      .modal-button {
+        display: block;
+        width: 100%;
+        padding: 15px 20px; /* Increased padding for bigger buttons */
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px; /* Increased font size for bigger buttons */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .plan-group {
+        display: flex;
+      }
+
+      .manage-users {
+        color: rgb(105, 0, 0);
+        border: none;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .basic-plan {
+        background-color: #5883b4;
+        color: white;
+      }
+
+      .premium-plan {
+        background-color: #d33ac6;
+        color: white;
+      }
+
+      .modal-button:hover {
+        background-color: #ddd;
+      }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        margin-right: 40px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 150px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        right: 0px;
+      }
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #f1f1f1;
+      }
+
+      .description {
+        font-size: xx-large;
+        padding-left: 100px;
+        padding-right: 100px;
+        text-align: justify;
+        margin-top: 80px;
+        margin-bottom: 80px;
+        font-family: fantasy;
+      }
+    </style>
+  </head>
+  <body>
+    <header style="display: flex">
+      <h1 style="width: 100%">Age of Personalization</h1>
+      <div class="dropdown">
+        <img
+          src="https://i.ibb.co/nLdTFXS/icon3.png"
+          alt="Logo"
+          width="50"
+          height="50"
+        />
+        <!-- Replace with your logo image path -->
+        <div class="dropdown-content">
+          <!-- <a href="/register">Register</a>
+          <a href="/login">Login</a> -->
+          <a href="#">{{ current_user.username }}</a>
+          <a href="{{ url_for('admin_users') }}">Manage Users</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+    </header>
+    <main>
+      <div class="description">
+        AL3RT.me is an implementation of the AL3RT framework. It is your
+        personal, context-aware AI-assistant. It will respond to your prompts in
+        the context of your discussion Stream – learning from and improving its
+        personalized responses to your Prompts.
+      </div>
+      <!-- <div class="welcome-message">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+      </div> -->
+      <a href="#" onclick="hideURL()">Download Google Chrome Extension</a>
+      <div style="width: 60%; margin: 30px;">
+        <u style="font-size: large;">
+          Installation and Use of the Google Chrome Extension 
+        </u>
+        <p>
+          1.Download and unzip Extension to a folder on your computer 
+        </p>
+        <p>
+          2.Launch your Google Chrome browser 
+        </p>
+        <p>
+          3.Click on Extensions in the top right corner of the browser
+        </p>
+        <p>
+          4.Click Manage Extensions 
+        </p>
+        <p>
+          5.Click on Load Unpacked, and go to the folder where you unzipped the downloaded zip file 
+        </p>
+        <p>
+          6.The Extension’s Options screen appears. Add your Streams and Prompts for selection later when you use the extension. You can modify the Prompts later. 
+        </p>
+        <p>
+          7.When done, restart the Google Chrome Browser. 
+        </p>
+        <p>
+          8.Highlight any text on a web page in Chrome and the AL3RT logo will appear. Click on it to select the chat Stream and Prompt to submit the highlighted text to the AI engine.
+        </p>
+        <p>
+          9.Note: You can further edit to personalize the Prompt and selected
+          (highlighted) text before submitting it to the AI engine.
+        </p>
+      </div>
+      <!-- <div class="access-level">
+        {% if current_user.role == 'admin' %}
+        <p>You have Admin access.</p>
+        <a href="{{ url_for('admin_users') }}" class="manage-users"
+          >Manage Users</a
+        >
+        {% elif current_user.role == 'premium' %}
+        <p>You have Premium access.</p>
+        {% else %}
+        <p>You have Basic access.</p>
+        {% endif %}
+      </div> -->
+      <button class="plan-button" id="changePlanBtn">Change Plan</button>
+    </main>
+    <footer>Copyright 2024, Posydn Labs. All rights reserved</footer>
+
+    <!-- Modal for plan selection -->
+    <!-- Updated Modal for plan selection -->
+    <div id="planModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="modal-title">Choose a Plan</h2>
+        <p class="plans">Select your desired plan:</p>
+        <div class="plan-group">
+          <button id="basicPlanBtn" class="modal-button basic-plan">
+            Basic Plan
+          </button>
+          <button id="premiumPlanBtn" class="modal-button premium-plan">
+            Premium Plan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to hide the URL in the status bar
+      function hideURL() {
+        // Prevent the default link behavior
+        event.preventDefault();
+        // Perform the desired action (e.g., open a new page)
+        window.open(
+          "https://github.com/Yuji7805/chatgpt-chrome-extension/archive/refs/heads/main.zip",
+          "_blank"
+        );
+      }
+      // Get the modal
+      var modal = document.getElementById("planModal");
+
+      // Get the button that opens the modal
+      var btn = document.getElementById("changePlanBtn");
+
+      // When the user clicks the button, open the modal
+      btn.onclick = function () {
+        modal.style.display = "block";
+      };
+
+      // When the user clicks on <span> (x), close the modal
+      var span = document.getElementsByClassName("close")[0];
+      span.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      // Handle selection of Basic Plan
+      var basicPlanBtn = document.getElementById("basicPlanBtn");
+      basicPlanBtn.onclick = function () {
+        alert("You have selected the Basic Plan.");
+        modal.style.display = "none";
+      };
+
+      // Handle selection of Premium Plan
+      var premiumPlanBtn = document.getElementById("premiumPlanBtn");
+      premiumPlanBtn.onclick = function () {
+        alert("You have selected the Premium Plan.");
+        modal.style.display = "none";
+      };
+
+      // Close the modal if the user clicks outside of it
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>

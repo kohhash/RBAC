@@ -135,7 +135,7 @@ def home():
     # Control access based on role
     if current_user.role == 'admin':
         print("admin logged in")
-        return render_template('home.html')
+        return render_template('homea.html')
         # admin access area
     elif current_user.role == 'premium':
         print("premium")
@@ -187,7 +187,8 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmation_token()
-        send_verification_msg([user.email], "Verification Email:", token=token)
+        send_verification_msg(
+            [user.email], "Verification Email:", token=token, type='confirm')
         flash('A confirmation email has been sent to you by email.')
         return render_template('verify.html', email=user.email)
     return render_template('register.html', form=form)
@@ -220,10 +221,10 @@ def reset_request():
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        # if user:
-        # token = user.generate_confirmation_token()
-        # send_email(user.email, 'Reset Your Password',
-        #            'email/reset_password', token=token)
+        if user:
+            token = user.generate_confirmation_token()
+            send_verification_msg(
+                [user.email], 'Reset Your Password', token=token, type='reset')
         flash('An email with instructions to reset your password has been sent to you.')
         return redirect(url_for('login'))
     return render_template('reset_request.html', form=form)
@@ -263,7 +264,6 @@ def admin_users():
     if current_user.role != 'admin':
         return redirect(url_for('home'))
     users = User.query.all()
-    print(len(users))
     return render_template('admin_manage_users.html', users=users)
 
 
@@ -338,7 +338,7 @@ def admin_change_user_role(user_id):
 #            'email/confirm', user=user, token=token)
 
 
-def send_verification_msg(recipients, subject, token):
+def send_verification_msg(recipients, subject, token, type):
     html_content = f"""
         <html>
             <head></head>
@@ -346,7 +346,7 @@ def send_verification_msg(recipients, subject, token):
                 <p>Hi there!</p>
                 <p>This is a verification message from our script.</p>
                 <p>Please verify your account by clicking on the link below:</p>
-                <a href="https://al3rt.me/confirm/{token}">Verify Account</a>
+                <a href="https://al3rt.me/{type}/{token}">Verify Account</a>
                 <p>Thank you!</p>
             </body>
         </html>
