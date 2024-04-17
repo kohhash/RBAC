@@ -192,7 +192,13 @@ def register():
 
 @app.route('/confirm/<token>')
 def confirm(token):
-    print(current_user.confirmed)
+    s = Serializer(current_app.config['SECRET_KEY'])
+    data = ''
+    try:
+        data = s.loads(token.encode('utf-8'))
+    except:
+        return False
+    current_user = load_user(data.get('confirm'))
     if current_user.confirmed:
         return redirect(url_for('home'))
     if current_user.confirm(token):
