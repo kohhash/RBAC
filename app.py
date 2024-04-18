@@ -233,7 +233,7 @@ def reset_request():
         except Exception as e:
             error = "MAIL_Server_not_found"
             if str(e).__contains__('NoneType'):
-                error = "Not_Registered"            
+                error = "Not_a_registered_user"
             form.email.errors = error
             render_template('reset_request.html', form=form)
     return render_template('reset_request.html', form=form)
