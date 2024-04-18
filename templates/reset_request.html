@@ -44,6 +44,10 @@
         border-radius: 4px;
         border: none;
       }
+
+      .error {
+        color: red;
+      }
     </style>
   </head>
   <body>
@@ -60,11 +64,13 @@
         >
           {{ form.email.label }}<br />
           {{ form.email(size=32) }}<br />
-          {% for error in form.email.errors %}
-          <span class="error">{{ error }}</span>
-          {% endfor %}
           <input type="submit" value="Submit" class="submit" />
         </p>
+        <div style="display: flex; font-family: cursive">
+          {% for error in form.email.errors %}
+          <span class="error">{{ error }}</span>          
+          {% endfor %}
+        </div>
       </form>
     </div>
   </body>

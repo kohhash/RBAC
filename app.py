@@ -222,12 +222,17 @@ def reset_request():
     form = ForgotPasswordForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            token = user.generate_reset_token()
-            send_verification_msg(
-                [user.email], 'Reset Your Password', token=token, type='reset')
-        flash('An email with instructions to reset your password has been sent to you.')
-        return render_template("verify-reset.html", email=user.email)
+        try:
+            if user:
+                token = user.generate_reset_token()
+                send_verification_msg(
+                    [user.email], 'Reset Your Password', token=token, type='reset')
+            flash(
+                'An email with instructions to reset your password has been sent to you.')
+            return render_template("verify-reset.html", email=user.email)
+        except Exception as e:
+            form.email.errors = "Not   _   registered!"
+            render_template('reset_request.html', form=form)
     return render_template('reset_request.html', form=form)
 
 
