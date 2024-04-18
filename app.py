@@ -231,7 +231,10 @@ def reset_request():
                 'An email with instructions to reset your password has been sent to you.')
             return render_template("verify-reset.html", email=user.email)
         except Exception as e:
-            form.email.errors = "Not   _   registered!"
+            error = "MAIL_Server_not_found"
+            if str(e).__contains__('NoneType'):
+                error = "Not_Registered"            
+            form.email.errors = error
             render_template('reset_request.html', form=form)
     return render_template('reset_request.html', form=form)
 
