@@ -271,7 +271,6 @@ def reset_token(token):
 @app.route('/admin-users')
 @login_required
 def redirect_route():
-    print("admin users////")
     # Perform any necessary processing before the redirect
     # Redirect to the desired route or URL
     # Replace 'admin_users' with the actual route name
