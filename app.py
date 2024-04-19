@@ -764,7 +764,11 @@ def token_required(f):
 @app.route('/app/logout')
 @token_required
 def app_logout():
-    logout_user()
+    try:
+        logout_user()
+        return jsonify({'message': 'Logout Succeed'}), 200
+    except Exception as e:
+        return jsonify({'message': str(e)}), 401
 
 
 @app.route('/app/openai', methods=['GET'])
