@@ -197,7 +197,7 @@ def app_login():
                 # Token expiration time
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
             }, app.config['SECRET_KEY'])
-            token = token.decode('utf-8')
+            # token = token.decode('utf-8')
             print(token)
             # Login successful
             return jsonify({'message': 'Login successful', 'access_token': token}), 200
