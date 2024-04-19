@@ -1,3 +1,4 @@
+import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -5,7 +6,7 @@ from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
 from time import sleep
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from models import db, User
 from forms import LoginForm
@@ -13,7 +14,9 @@ from flask_mail import Mail, Message
 from forms import LoginForm, RegistrationForm, ForgotPasswordForm, PasswordResetForm
 import openai
 import json
+import jwt
 import os
+from functools import wraps
 from dotenv import load_dotenv
 from flask_cors import CORS
 # from flask_wtf.csrf import CSRFProtect
@@ -145,6 +148,8 @@ def home():
         # default access area
     return render_template('home.html')
 
+# login api for chrome extension
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -169,6 +174,30 @@ def login():
             form.error.data = "Invalid username or password."
             render_template('login.html', title='Sign In', form=form)
     return render_template('login.html', title='Sign In', form=form)
+
+# login api for desktop app
+
+
+@app.route('/app/login', methods=['GET', 'POST'])
+def app_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = User.find_by_username(username)
+        if user and user.verify_password(password=password):
+            # Generate an access token (JWT) upon successful login
+            token = jwt.encode({
+                'username': username,
+                # Token expiration time
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
+            }, app.config['SECRET_KEY'])
+            print(token)
+            # Login successful
+            return jsonify({'message': 'Login successful', 'access_token': token.decode('utf-8')}), 200
+        else:
+            # Login failed
+            return jsonify({'message': 'Login failed'}), 401
 
 
 @app.route('/logout')
@@ -400,6 +429,8 @@ def send_verification_msg(recipients, subject, token, type):
         smtp_server.quit()
 
 # openai API
+
+# --------------  OpenAI APIs for chrome extension  ------------ #
 
 
 @app.route('/openai', methods=['GET'])
@@ -664,6 +695,323 @@ def run_assistant():
 @app.route('/openai/messages', methods=['POST'])
 @login_required
 def get_messages_from_thread():
+    try:
+        data = request.json
+        thread_id = data['thdid']
+        messages = client.beta.threads.messages.list(
+            thread_id=thread_id,
+            limit=2
+        )
+        messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
+
+        messages_json_str = json.dumps(messages_list_dicts, indent=4)
+
+        messages_json_obj = json.loads(messages_json_str)
+        print(messages_json_obj)
+        return messages_json_obj
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+# --------------  OpenAI APIs for Desktop App  ------------ #
+# Define a decorator to require an access token for API endpoints
+def token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.headers.get('Authorization')
+
+        if not token:
+            # Unauthorized
+            return jsonify({'message': 'Token is missing!'}), 401
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            # Add additional token validation logic if needed
+        except jwt.ExpiredSignatureError:
+            # Unauthorized
+            return jsonify({'message': 'Token has expired!'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid token!'}), 401  # Unauthorized
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+@app.route('/app/openai', methods=['GET'])
+@token_required
+def app_openai_request():
+    return "Server is ALIVE!"
+
+
+@app.route('/app/openai/assistants/create', methods=['POST'])
+@token_required
+def app_openai_create_assistant():
+    try:
+        data = request.json
+        instruction = data['instruction']
+        assistant_name = data['assist-name']
+        assistant_type = data['assist-type']
+
+        print(instruction, assistant_name, assistant_type)
+        my_assistant = client.beta.assistants.create(
+            instructions=instruction,
+            name=assistant_name,
+            tools=[{"type": assistant_type}],
+            model="gpt-4-0125-preview",
+        )
+        print(my_assistant)
+        return "my_assistant successed"
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return e.__cause__
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/assistants', methods=['GET'])
+@token_required
+def app_openai_get_assistants():    
+    try:
+        assistants = client.beta.assistants.list(
+            order="desc",
+            limit="20",
+        )
+        assistants = convert_to_json_format(assistants)
+        return assistants
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/assistants/delete', methods=['DELETE'])
+@token_required
+def app_delete_assistant():
+    try:
+        assistant_id = request.json['asstid']
+        response = client.beta.assistants.delete(assistant_id=assistant_id)
+        if (response.deleted):
+            return 'deleted'
+        return 'delete failed'
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/assistants/modify', methods=['POST'])
+@token_required
+def app_modify_assistant():
+    try:
+        data = request.json
+        assistant_id = data['asstid']
+        instruction = data['instruction']
+        assistant_name = data['assist-name']
+        assistant_type = data['assist-type']
+        updated_assistant = client.beta.assistants.update(
+            assistant_id=assistant_id,
+            instructions=instruction,
+            name=assistant_name,
+            tools=[{"type": assistant_type}],
+            model="gpt-4-0125-preview",
+        )
+
+        print(updated_assistant)
+        return 'modify successed'
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+# threads
+@app.route('/app/openai/threads/create', methods=['POST'])
+@token_required
+def app_openai_create_thread():
+    try:
+        _thread = client.beta.threads.create()
+        return {"thdid": _thread.id}
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return e.__cause__
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/threads/delete', methods=['DELETE'])
+@token_required
+def app_delete_thread():
+    try:
+        thread_id = request.json['thdid']
+        response = client.beta.threads.delete(thread_id=thread_id)
+        print(response)
+        if response.deleted:
+            return 'deleted'
+        return 'delete failed'
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/threads/modify', methods=['POST'])
+@token_required
+def app_modify_thread():
+    try:
+        data = request.json
+        thread_id = data['thdid']
+        user = data['user']
+        updated_thread = client.beta.threads.update(
+            thread_id=thread_id,
+            metadata={
+                "modified": "true",
+                "user": user
+            }
+        )
+
+        print(updated_thread)
+        return 'modify successed'
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/run', methods=['POST'])
+@token_required
+def app_run_assistant():
+    try:
+        data = request.json
+        thread_id = data['thdid']
+        assistant_id = data['asstid']
+        content = data['content']
+        print(thread_id, assistant_id, content)
+        message = client.beta.threads.messages.create(
+            thread_id=thread_id,
+            role="user",
+            content=content
+        )
+
+        run = client.beta.threads.runs.create(
+            thread_id=thread_id,
+            assistant_id=assistant_id,
+        )
+
+        run = client.beta.threads.runs.retrieve(
+            thread_id=thread_id,
+            run_id=run.id
+        )
+        messages = None
+        role = "user"
+        content = ""
+        while role == "user" or len(content) == 0:
+            sleep(0.5)
+            print("getting msg again...")
+            messages = client.beta.threads.messages.list(
+                thread_id=thread_id,
+                limit=1
+            )
+            role = message_to_dict(messages.data[0])["role"]
+            if role == "assistant":
+                content = message_to_dict(messages.data[0])["content"]
+                if content:
+                    content = content[0]["text"]
+        messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
+        messages_json_str = json.dumps(messages_list_dicts, indent=4)
+        messages_json_obj = json.loads(messages_json_str)
+        messages_json_obj = [
+            obj for obj in messages_json_obj if obj.get("role") != "user"]
+        return messages_json_obj[0]
+    except openai.APIConnectionError as e:
+        print("The server could not be reached")
+        print(e.__cause__)
+        return str(e.__cause__)
+
+    except openai.RateLimitError as e:
+        return "A 429 status code was received; we should back off a bit."
+
+    except openai.APIStatusError as e:
+        print("Another non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
+        return str(e.response)
+
+
+@app.route('/app/openai/messages', methods=['POST'])
+@token_required
+def app_get_messages_from_thread():
     try:
         data = request.json
         thread_id = data['thdid']

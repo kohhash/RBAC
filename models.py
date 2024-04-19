@@ -60,3 +60,7 @@ class User(UserMixin, db.Model):
         user.password = new_password
         db.session.commit()
         return True
+    
+    @staticmethod
+    def find_by_username(username):
+        return User.query.filter_by(username=username).first()
