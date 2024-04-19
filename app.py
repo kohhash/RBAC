@@ -740,9 +740,8 @@ def token_required(f):
             # Unauthorized
             return jsonify({'message': 'Token is missing!'}), 401        
         try:
-            print('trying to analyze token: ', token)
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            print(data)
+            print(token)
+            data = jwt.decode(token, app.config['SECRET_KEY'])            
             # Add additional token validation logic if needed
         except jwt.ExpiredSignatureError:
             # Unauthorized
