@@ -197,7 +197,7 @@ def app_login():
                 # Token expiration time
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
             }, app.config['SECRET_KEY'])
-            
+
             # enable this line in windows and disable in ubuntu(linux server)
             # token = token.decode('utf-8')
             print(token)
@@ -738,11 +738,11 @@ def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = str(request.headers.get('Authorization'))[7:]
-        print(type(token))     
+        print(type(token))
         print(token)
         if not token:
             # Unauthorized
-            return jsonify({'message': 'Token is missing!'}), 401        
+            return jsonify({'message': 'Token is missing!'}), 401
         try:
             print("try: exception part:")
             print(token)
@@ -759,6 +759,12 @@ def token_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+@app.route('/app/logout')
+@token_required
+def app_logout():
+    logout_user()
 
 
 @app.route('/app/openai', methods=['GET'])
