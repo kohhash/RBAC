@@ -747,7 +747,8 @@ def token_required(f):
             print("try: exception part:")
             print(token)
             print(token.encode())
-            data = jwt.decode(token, app.config['SECRET_KEY'])            
+            data = jwt.decode(token, key=app.config['SECRET_KEY'], options={
+                              "verify_signature": False})
             # Add additional token validation logic if needed
         except jwt.ExpiredSignatureError:
             # Unauthorized
