@@ -33,7 +33,7 @@
       }
 
       input[type="submit"] {
-        width: calc(100% - 20px);
+        width: 100%;
         background-color: #008cba;
         color: white;
         padding: 10px;
@@ -104,7 +104,7 @@
           <input type="checkbox" onclick="togglePassword()" />
           <label for="showPassword">Show Password</label>
         </div>
-        <div style="width: 100%">{{ form.submit(class_='button') }}</div>
+        <div>{{ form.submit(class_='button') }}</div>
         <div class="account-management">
           Don't have an account? <a href="/register">Register here</a>.
         </div>
