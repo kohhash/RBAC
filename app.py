@@ -181,9 +181,14 @@ def login():
 @app.route('/app/login', methods=['GET', 'POST'])
 def app_login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
+        username = password = ""
+        try:
+            username = request.form.get('username')
+            password = request.form.get('password')
+        except:
+            username = request.get('username')
+            password = request.get('password')
+        print(username, ": ", password)
         user = User.find_by_username(username)
         if user and user.verify_password(password=password):
             # Generate an access token (JWT) upon successful login
@@ -192,7 +197,8 @@ def app_login():
                 # Token expiration time
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
             }, app.config['SECRET_KEY'])
-            print(token)
+            print("secret key:")
+            print(app.config['SECRET_KEY'])
             # Login successful
             return jsonify({'message': 'Login successful', 'access_token': token.decode('utf-8')}), 200
         else:
@@ -729,13 +735,16 @@ def get_messages_from_thread():
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = request.headers.get('Authorization')        
+        token = request.headers.get('Authorization')[7:]
+        print(token)
         if not token:
             # Unauthorized
             return jsonify({'message': 'Token is missing!'}), 401
-
+        print(app.config['SECRET_KEY'])
         try:
+            print('trying to analyze token: ', token)
             data = jwt.decode(token, app.config['SECRET_KEY'])
+            print(data)
             # Add additional token validation logic if needed
         except jwt.ExpiredSignatureError:
             # Unauthorized
@@ -789,7 +798,7 @@ def app_openai_create_assistant():
 
 @app.route('/app/openai/assistants', methods=['GET'])
 @token_required
-def app_openai_get_assistants():    
+def app_openai_get_assistants():
     try:
         assistants = client.beta.assistants.list(
             order="desc",
