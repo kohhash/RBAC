@@ -768,7 +768,7 @@ def app_logout():
         logout_user()
         return jsonify({'message': 'Logout Succeed'}), 200
     except Exception as e:
-        return jsonify({'message': str(e)}), 401
+        return jsonify({'message': str(e.__cause__)}), 401
 
 
 @app.route('/app/openai', methods=['GET'])
