@@ -197,10 +197,10 @@ def app_login():
                 # Token expiration time
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
             }, app.config['SECRET_KEY'])
-            print("secret key:")
-            print(app.config['SECRET_KEY'])
+            token = token.decode('utf-8')
+            print(token)
             # Login successful
-            return jsonify({'message': 'Login successful', 'access_token': token.decode('utf-8')}), 200
+            return jsonify({'message': 'Login successful', 'access_token': token}), 200
         else:
             # Login failed
             return jsonify({'message': 'Login failed'}), 401
