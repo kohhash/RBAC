@@ -197,6 +197,8 @@ def app_login():
                 # Token expiration time
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=720)
             }, app.config['SECRET_KEY'])
+            
+            # enable this line in windows and disable in ubuntu(linux server)
             # token = token.decode('utf-8')
             print(token)
             # Login successful
@@ -740,6 +742,7 @@ def token_required(f):
             # Unauthorized
             return jsonify({'message': 'Token is missing!'}), 401        
         try:
+            print("try: exception part:")
             print(token)
             data = jwt.decode(token, app.config['SECRET_KEY'])            
             # Add additional token validation logic if needed
