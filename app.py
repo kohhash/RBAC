@@ -764,6 +764,7 @@ def token_required(f):
 @app.route('/app/logout')
 @token_required
 def app_logout():
+    print("logout called")
     try:
         logout_user()
         return jsonify({'message': 'Logout Succeed'}), 200
