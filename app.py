@@ -737,7 +737,9 @@ def get_messages_from_thread():
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = str(request.headers.get('Authorization'))[7:]        
+        token = str(request.headers.get('Authorization'))[7:]
+        print(type(token))     
+        print(token)
         if not token:
             # Unauthorized
             return jsonify({'message': 'Token is missing!'}), 401        
