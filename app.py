@@ -735,12 +735,10 @@ def get_messages_from_thread():
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = request.headers.get('Authorization')[7:]
-        print(token)
+        token = request.headers.get('Authorization')[7:]        
         if not token:
             # Unauthorized
-            return jsonify({'message': 'Token is missing!'}), 401
-        print(app.config['SECRET_KEY'])
+            return jsonify({'message': 'Token is missing!'}), 401        
         try:
             print('trying to analyze token: ', token)
             data = jwt.decode(token, app.config['SECRET_KEY'])
