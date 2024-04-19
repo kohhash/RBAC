@@ -750,8 +750,7 @@ def token_required(f):
             data = jwt.decode(token, key=app.config['SECRET_KEY'], options={
                               "verify_signature": False})
             # Add additional token validation logic if needed
-        except jwt.ExpiredSignatureError:
-            # Unauthorized
+        except jwt.ExpiredSignatureError:            
             return jsonify({'message': 'Token has expired!'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid token!'}), 401  # Unauthorized
