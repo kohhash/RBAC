@@ -105,10 +105,25 @@
         margin: 10% auto;
         padding: 20px;
         border: 1px solid #ccc;
-        width: 80%;
-        max-width: 400px; /* Adjust the maximum width as needed */
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: fit-content;
+      }
+
+      .plans-content {
+        display: flex;
+      }
+
+      .plan {
+        width: 250px;
+        margin: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        background-color: #cccccc;
+        border-radius: 10px;
       }
 
       .close {
@@ -132,10 +147,17 @@
       }
 
       .plans {
-        margin-bottom: 30vh;
+        height: auto;
+        min-height: 35vh;
+        padding: 15px;
+        font-family: none;
+        font-size: xx-large;
+        text-align: justify;
       }
 
       .modal-button {
+        color: white;
+        background-color: #2c2fee;
         display: block;
         width: 100%;
         padding: 15px 20px; /* Increased padding for bigger buttons */
@@ -170,7 +192,7 @@
       }
 
       .modal-button:hover {
-        background-color: #ddd;
+        background-color: #0428c7;
       }
       .dropdown {
         position: relative;
@@ -182,7 +204,7 @@
         display: none;
         position: absolute;
         background-color: #f9f9f9;
-        min-width: 120px;
+        min-width: 160px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
         right: 0px;
@@ -229,6 +251,9 @@
           <!-- <a href="/register">Register</a>
           <a href="/login">Login</a> -->
           <a href="#">{{ current_user.username }}</a>
+          {% if role == "admin" %}
+          <a href="{{ url_for('admin_users') }}">Manage Users</a>
+          {% endif %}
           <a href="{{ url_for('logout') }}">Logout</a>
         </div>
       </div>
@@ -287,7 +312,7 @@
         <p>You have Basic access.</p>
         {% endif %}
       </div> -->
-      <!-- <button class="plan-button" id="changePlanBtn">Change Plan</button> -->
+      <button class="plan-button" id="changePlanBtn">Change Plan</button>
     </main>
     <footer>Copyright 2024, Posydn Labs. All rights reserved</footer>
 
@@ -297,14 +322,15 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2 class="modal-title">Choose a Plan</h2>
-        <p class="plans">Select your desired plan:</p>
-        <div class="plan-group">
-          <button id="basicPlanBtn" class="modal-button basic-plan">
-            Basic Plan
-          </button>
-          <button id="premiumPlanBtn" class="modal-button premium-plan">
-            Premium Plan
-          </button>
+        <div class="plans-content">
+          {% for plan in plans %} {% if plan.id > 0 %}
+          <div class="plan">
+            <p class="plans">{{plan.description}}</p>
+            <div class="plan-group">
+              <button class="modal-button">{{ plan.name }}</button>
+            </div>
+          </div>
+          {% endif %} {% endfor %}
         </div>
       </div>
     </div>
@@ -338,19 +364,28 @@
       };
 
       // Handle selection of Basic Plan
-      var basicPlanBtn = document.getElementById("basicPlanBtn");
-      basicPlanBtn.onclick = function () {
-        alert("You have selected the Basic Plan.");
-        modal.style.display = "none";
-      };
+      // var basicPlanBtn = document.getElementById("basicPlanBtn");
+      // basicPlanBtn.onclick = function () {
+      //   alert("You have selected the Basic Plan.");
+      //   modal.style.display = "none";
+      // };
 
-      // Handle selection of Premium Plan
-      var premiumPlanBtn = document.getElementById("premiumPlanBtn");
-      premiumPlanBtn.onclick = function () {
-        alert("You have selected the Premium Plan.");
-        modal.style.display = "none";
-      };
-
+      // // Handle selection of Premium Plan
+      // var premiumPlanBtn = document.getElementById("premiumPlanBtn");
+      // premiumPlanBtn.onclick = function () {
+      //   alert("You have selected the Premium Plan.");
+      //   modal.style.display = "none";
+      // };
+      // Add an event listener to the modal buttons
+      document.addEventListener("DOMContentLoaded", function () {
+        const modalButtons = document.querySelectorAll(".modal-button");
+        modalButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            // Print the button text when the button is clicked
+            console.log(button.textContent);
+          });
+        });
+      });
       // Close the modal if the user clicks outside of it
       window.onclick = function (event) {
         if (event.target == modal) {
