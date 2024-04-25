@@ -326,6 +326,15 @@
           {% for plan in plans %} {% if plan.id > 0 %}
           <div class="plan">
             <p class="plans">{{plan.description}}</p>
+            <p
+              style="
+                color: cornflowerblue;
+                font-size: x-large;
+                text-align: center;
+              "
+            >
+              ${{ plan.price }}
+            </p>
             <div class="plan-group">
               <button class="modal-button">{{ plan.name }}</button>
             </div>
@@ -382,7 +391,32 @@
         modalButtons.forEach(function (button) {
           button.addEventListener("click", function () {
             // Print the button text when the button is clicked
-            console.log(button.textContent);
+            const data = {
+              product: "AL3RT Basic",
+            };
+
+            // Send a POST request to the backend API /checkout
+            fetch("/checkout", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  return response.json();
+                }
+                throw new Error("Network response was not ok.");
+              })
+              .then((data) => {
+                console.log(data); // Handle the response data here
+                // Redirect to the checkout URL upon successful response
+                window.location.href = data.checkout_url; // Replace with the actual property name from the response
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
           });
         });
       });

@@ -1,3 +1,4 @@
+import stripe
 import datetime
 import smtplib
 from email.mime.text import MIMEText
@@ -1075,6 +1076,71 @@ def get_all_plans():
         plans.append({"id": plan.id, "name": plan.name,
                      "description": plan.description, "price": plan.price})
     return plans
+
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    data = request.json
+    product_name = data["product"]
+    stripe.api_key = "sk_test_51OwIhC2NOh435M8ahcde4ZTb2ZTlu15nPMzuZyfUv5BiKAvYbqw9fy47BiywUgxS3rPjFuH6McPCMOWWIASzAJqh001e7ZOroc"
+
+    def find_product_id_by_name(product_name):
+        # List all products and find the matching product ID(s)
+        # You can paginate through products if necessary
+        response = stripe.Product.list(limit=100)
+        for product in response.auto_paging_iter():
+            if product['name'] == product_name:
+                yield product['id']
+
+    def find_price_ids_by_product_id(product_id):
+        # List all prices for the given product ID
+        # You can paginate through prices if necessary
+        response = stripe.Price.list(limit=100)
+        for price in response.auto_paging_iter():
+            if price['product'] == product_id:
+                yield price['id']
+    price_id = ""
+    # find product by pk(product name)
+    for product_id in find_product_id_by_name(product_name=product_name):
+        for _price_id in find_price_ids_by_product_id(product_id):
+            price_id = _price_id
+
+    print(stripe.api_key)
+    print(price_id)
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    # 'price': 'price_1NBbrkImNVsu0KeiEPOf3Gnu',
+                    'price': price_id,
+                    'quantity': 1
+                },
+            ],
+            mode='subscription',
+            success_url="http://localhost:5000" + \
+            '/payment_successful?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url="http://localhost:5000" + '/payment_cancelled',
+        )
+        print(checkout_session.url)
+        return {"checkout_url": checkout_session.url}
+    except Exception as E:
+        print("error: ", E)
+
+
+@app.route('/payment_successful', methods=['GET'])
+def payment_successful():
+    session_id = request.args.get('session_id')
+    # Process the successful payment and retrieve the session ID
+    # Update the payment status in your database
+    return render_template('payment_success.html', session_id=session_id)
+
+
+@app.route('/payment_cancelled', methods=['GET'])
+def payment_cancelled():
+    # Handle the canceled payment
+    return render_template('payment_cancel.html')
+
 
 
 if __name__ == '__main__':
