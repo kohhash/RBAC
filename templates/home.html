@@ -105,10 +105,25 @@
         margin: 10% auto;
         padding: 20px;
         border: 1px solid #ccc;
-        width: 80%;
-        max-width: 400px; /* Adjust the maximum width as needed */
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: fit-content;
+      }
+
+      .plans-content {
+        display: flex;
+      }
+
+      .plan {
+        width: 250px;
+        margin: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+        background-color: #cccccc;
+        border-radius: 10px;
       }
 
       .close {
@@ -132,10 +147,17 @@
       }
 
       .plans {
-        margin-bottom: 30vh;
+        height: auto;
+        min-height: 35vh;
+        padding: 15px;
+        font-family: none;
+        font-size: xx-large;
+        text-align: justify;
       }
 
       .modal-button {
+        color: white;
+        background-color: #2c2fee;
         display: block;
         width: 100%;
         padding: 15px 20px; /* Increased padding for bigger buttons */
@@ -170,7 +192,7 @@
       }
 
       .modal-button:hover {
-        background-color: #ddd;
+        background-color: #0428c7;
       }
       .dropdown {
         position: relative;
@@ -182,7 +204,7 @@
         display: none;
         position: absolute;
         background-color: #f9f9f9;
-        min-width: 120px;
+        min-width: 160px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 1;
         right: 0px;
@@ -229,6 +251,9 @@
           <!-- <a href="/register">Register</a>
           <a href="/login">Login</a> -->
           <a href="#">{{ current_user.username }}</a>
+          {% if role == "admin" %}
+          <a href="{{ url_for('admin_users') }}">Manage Users</a>
+          {% endif %}
           <a href="{{ url_for('logout') }}">Logout</a>
         </div>
       </div>
@@ -249,29 +274,60 @@
       <a href="#" onclick="hideURL()">Download Google Chrome Extension</a>
       <div style="width: 60%; margin: 30px">
         <u style="font-size: large">
-          Installation and Use of the Google Chrome Extension
+          Installation and Use of the Google Chrome Extension (Mac)
         </u>
-        <p>1.Download and unzip Extension to a folder on your computer</p>
-        <p>2.Launch your Google Chrome browser</p>
-        <p>3.Click on Extensions in the top right corner of the browser</p>
-        <p>4.Click Manage Extensions</p>
+        <p>1. Download and unzip Extension to a folder on your computer</p>
+        <p>2. Launch your Google Chrome browser</p>
+        <p>3. Click on Extensions in the top right corner of the browser</p>
+        <p>4. Click Manage Extensions</p>
         <p>
-          5.Click on Load Unpacked, and go to the folder where you unzipped the
+          5. Click on Load Unpacked, and go to the folder where you unzipped the
           downloaded zip file
         </p>
         <p>
-          6.The Extension’s Options screen appears. Add your Streams and Prompts
-          for selection later when you use the extension. You can modify the
-          Prompts later.
+          6. The Extension’s Options screen appears. Add your Streams and
+          Prompts for selection later when you use the extension. You can modify
+          the Prompts later.
         </p>
-        <p>7.When done, restart the Google Chrome Browser.</p>
+        <p>7. When done, restart the Google Chrome Browser.</p>
         <p>
-          8.Highlight any text on a web page in Chrome and the AL3RT logo will
+          8. Highlight any text on a web page in Chrome and the AL3RT logo will
           appear. Click on it to select the chat Stream and Prompt to submit the
           highlighted text to the AI engine.
         </p>
         <p>
-          9.Note: You can further edit to personalize the Prompt and selected
+          Note: You can further edit to personalize the Prompt and selected
+          (highlighted) text before submitting it to the AI engine.
+        </p>
+      </div>
+
+      <div style="width: 60%; margin: 30px">
+        <u style="font-size: large">
+          Installation and Use of the Google Chrome Extension (Windows)
+        </u>
+        <p>1. Download and unzip Extension to a folder on your computer</p>
+        <p>2. Launch your Google Chrome browser</p>
+        <p>3. Click on Chrome Menu (three vertical dots) in the top right</p>
+        <p>4. Click on Extensions in the top right corner of the browser</p>
+        <p>5. Click Manage Extensions</p>
+        <p>6. Set Developer mode to On in the top right</p>
+        <p>
+          7. Click on Load Unpacked, and go to the folder where you unzipped the
+          downloaded zip file (the folder you see _locales)
+        </p>
+        <p>
+          8. Click Select Folder. The Extension’s Options screen appears. Add
+          your Streams and Prompts for selection later when you use the
+          extension. You can modify the Prompts later.
+        </p>
+        <p>9. When done, restart the Google Chrome Browser.</p>
+        <p>
+          10. Highlight any text on a web page in Chrome and the AL3RT logo will
+          appear. Click on it to select the chat Stream and Prompt to submit the
+          highlighted text to the AI engine.
+        </p>
+        <p>
+          Note: You can further edit to personalize the Prompt and selected
           (highlighted) text before submitting it to the AI engine.
         </p>
       </div>
@@ -287,7 +343,7 @@
         <p>You have Basic access.</p>
         {% endif %}
       </div> -->
-      <!-- <button class="plan-button" id="changePlanBtn">Change Plan</button> -->
+      <button class="plan-button" id="changePlanBtn">Change Plan</button>
     </main>
     <footer>Copyright 2024, Posydn Labs. All rights reserved</footer>
 
@@ -297,14 +353,24 @@
       <div class="modal-content">
         <span class="close">&times;</span>
         <h2 class="modal-title">Choose a Plan</h2>
-        <p class="plans">Select your desired plan:</p>
-        <div class="plan-group">
-          <button id="basicPlanBtn" class="modal-button basic-plan">
-            Basic Plan
-          </button>
-          <button id="premiumPlanBtn" class="modal-button premium-plan">
-            Premium Plan
-          </button>
+        <div class="plans-content">
+          {% for plan in plans %} {% if plan.id > 0 %}
+          <div class="plan">
+            <p class="plans">{{plan.description}}</p>
+            <p
+              style="
+                color: cornflowerblue;
+                font-size: x-large;
+                text-align: center;
+              "
+            >
+              ${{ plan.price }}
+            </p>
+            <div class="plan-group">
+              <button class="modal-button">{{ plan.name }}</button>
+            </div>
+          </div>
+          {% endif %} {% endfor %}
         </div>
       </div>
     </div>
@@ -338,19 +404,53 @@
       };
 
       // Handle selection of Basic Plan
-      var basicPlanBtn = document.getElementById("basicPlanBtn");
-      basicPlanBtn.onclick = function () {
-        alert("You have selected the Basic Plan.");
-        modal.style.display = "none";
-      };
+      // var basicPlanBtn = document.getElementById("basicPlanBtn");
+      // basicPlanBtn.onclick = function () {
+      //   alert("You have selected the Basic Plan.");
+      //   modal.style.display = "none";
+      // };
 
-      // Handle selection of Premium Plan
-      var premiumPlanBtn = document.getElementById("premiumPlanBtn");
-      premiumPlanBtn.onclick = function () {
-        alert("You have selected the Premium Plan.");
-        modal.style.display = "none";
-      };
+      // // Handle selection of Premium Plan
+      // var premiumPlanBtn = document.getElementById("premiumPlanBtn");
+      // premiumPlanBtn.onclick = function () {
+      //   alert("You have selected the Premium Plan.");
+      //   modal.style.display = "none";
+      // };
+      // Add an event listener to the modal buttons
+      document.addEventListener("DOMContentLoaded", function () {
+        const modalButtons = document.querySelectorAll(".modal-button");
+        modalButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            // Print the button text when the button is clicked
+            const data = {
+              product: "AL3RT Basic",
+            };
 
+            // Send a POST request to the backend API /checkout
+            fetch("/checkout", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            })
+              .then((response) => {
+                if (response.ok) {
+                  return response.json();
+                }
+                throw new Error("Network response was not ok.");
+              })
+              .then((data) => {
+                console.log(data); // Handle the response data here
+                // Redirect to the checkout URL upon successful response
+                window.location.href = data.checkout_url; // Replace with the actual property name from the response
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          });
+        });
+      });
       // Close the modal if the user clicks outside of it
       window.onclick = function (event) {
         if (event.target == modal) {

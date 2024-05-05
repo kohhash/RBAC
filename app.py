@@ -1,3 +1,4 @@
+import stripe
 import datetime
 import smtplib
 from email.mime.text import MIMEText
@@ -8,7 +9,7 @@ from itsdangerous import SignatureExpired, BadSignature
 from time import sleep
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from models import db, User
+from models import db, Users, Plans
 from forms import LoginForm
 from flask_mail import Mail, Message
 from forms import LoginForm, RegistrationForm, ForgotPasswordForm, PasswordResetForm
@@ -39,10 +40,15 @@ app.config['MAIL_USERNAME'] = 'yujikoyama485@gmail.com'
 app.config['MAIL_PASSWORD'] = 'Qwe1234!@#$'
 app.config['MAIL_DEFAULT_SENDER'] = 'yujikoyama485@gmail.com'
 
+
 mail = Mail(app)
 
 db.init_app(app)
 
+# # Create the users table
+# with app.app_context():
+#     db.create_all()
+# exit(0)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -129,7 +135,7 @@ def message_to_dict(message):
 @login_manager.user_loader
 def load_user(user_id):
     print(user_id)
-    return User.query.get(int(user_id))
+    return Users.query.get(int(user_id))
 
 
 @app.route('/')
@@ -138,7 +144,7 @@ def home():
     # Control access based on role
     if current_user.role == 'admin':
         print("admin logged in")
-        return render_template('homea.html')
+        return render_template('home.html', role="admin", plans=get_all_plans())
         # admin access area
     elif current_user.role == 'premium':
         print("premium")
@@ -146,7 +152,7 @@ def home():
     else:
         print("default")
         # default access area
-    return render_template('home.html')
+    return render_template('home.html', plans=get_all_plans())
 
 # login api for chrome extension
 
@@ -158,7 +164,7 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = Users.query.filter_by(username=form.username.data).first()
         if user and user.verify_password(form.password.data):
             print("user confirmed: ", user.confirmed)
             if user.confirmed:
@@ -189,7 +195,7 @@ def app_login():
             username = request.get('username')
             password = request.get('password')
         print(username, ": ", password)
-        user = User.find_by_username(username)
+        user = Users.find_by_username(username)
         if user and user.verify_password(password=password):
             # Generate an access token (JWT) upon successful login
             token = jwt.encode({
@@ -219,7 +225,7 @@ def logout():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(email=form.email.data, username=form.username.data)
+        user = Users(email=form.email.data, username=form.username.data)
         user.password = form.password.data
 
         db.session.add(user)
@@ -258,7 +264,7 @@ def reset_request():
         return redirect(url_for('home'))
     form = ForgotPasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
         try:
             if user:
                 token = user.generate_reset_token()
@@ -320,7 +326,7 @@ def admin_users():
     print(current_user.role)
     if current_user.role != 'admin':
         return redirect(url_for('home'))
-    users = User.query.all()
+    users = Users.query.all()
     return render_template('admin_manage_users.html', users=users)
 
 
@@ -331,7 +337,7 @@ def admin_add_user():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = Users(username=form.username.data, email=form.email.data)
         user.password = form.password.data
         user.role = 'default'  # Set the default role or let the admin choose
         db.session.add(user)
@@ -346,7 +352,7 @@ def admin_add_user():
 def admin_edit_user(user_id):
     if current_user.role != 'admin':
         return redirect(url_for('home'))
-    user = User.query.get_or_404(user_id)
+    user = Users.query.get_or_404(user_id)
     form = RegistrationForm(obj=user)
     if form.validate_on_submit():
         user.username = form.username.data
@@ -365,7 +371,7 @@ def admin_edit_user(user_id):
 def admin_delete_user(user_id):
     if current_user.role != 'admin':
         return redirect(url_for('home'))
-    user = User.query.get_or_404(user_id)
+    user = Users.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
     flash('The user has been deleted.', 'success')
@@ -379,7 +385,7 @@ def admin_change_user_role(user_id):
         flash('You are not authorized to change user roles.', 'danger')
         return redirect(url_for('home'))
 
-    user = User.query.get_or_404(user_id)
+    user = Users.query.get_or_404(user_id)
     new_role = request.form.get('new_role')
 
     if new_role not in ['admin', 'premium', 'default']:
@@ -751,7 +757,6 @@ def token_required(f):
                               "verify_signature": False})
             # Add additional token validation logic if needed
         except jwt.ExpiredSignatureError:
-            # Unauthorized
             return jsonify({'message': 'Token has expired!'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'message': 'Invalid token!'}), 401  # Unauthorized
@@ -763,7 +768,7 @@ def token_required(f):
 
 @app.route('/app/logout')
 @token_required
-def app_logout():    
+def app_logout():
     try:
         logout_user()
         return jsonify({'message': 'Logout Succeed'}), 200
@@ -1061,6 +1066,81 @@ def app_get_messages_from_thread():
         print(e.status_code)
         print(e.response)
         return str(e.response)
+
+
+# Stripe API for al3rt.me homepage
+def get_all_plans():
+    all_plans = Plans.query.all()
+    plans = []
+    for plan in all_plans:
+        plans.append({"id": plan.id, "name": plan.name,
+                     "description": plan.description, "price": plan.price})
+    return plans
+
+
+@app.route('/checkout', methods=['POST'])
+def checkout():
+    data = request.json
+    product_name = data["product"]
+    stripe.api_key = "sk_test_51OwIhC2NOh435M8ahcde4ZTb2ZTlu15nPMzuZyfUv5BiKAvYbqw9fy47BiywUgxS3rPjFuH6McPCMOWWIASzAJqh001e7ZOroc"
+
+    def find_product_id_by_name(product_name):
+        # List all products and find the matching product ID(s)
+        # You can paginate through products if necessary
+        response = stripe.Product.list(limit=100)
+        for product in response.auto_paging_iter():
+            if product['name'] == product_name:
+                yield product['id']
+
+    def find_price_ids_by_product_id(product_id):
+        # List all prices for the given product ID
+        # You can paginate through prices if necessary
+        response = stripe.Price.list(limit=100)
+        for price in response.auto_paging_iter():
+            if price['product'] == product_id:
+                yield price['id']
+    price_id = ""
+    # find product by pk(product name)
+    for product_id in find_product_id_by_name(product_name=product_name):
+        for _price_id in find_price_ids_by_product_id(product_id):
+            price_id = _price_id
+
+    print(stripe.api_key)
+    print(price_id)
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    # 'price': 'price_1NBbrkImNVsu0KeiEPOf3Gnu',
+                    'price': price_id,
+                    'quantity': 1
+                },
+            ],
+            mode='subscription',
+            success_url="http://localhost:5000" + \
+            '/payment_successful?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url="http://localhost:5000" + '/payment_cancelled',
+        )
+        print(checkout_session.url)
+        return {"checkout_url": checkout_session.url}
+    except Exception as E:
+        print("error: ", E)
+
+
+@app.route('/payment_successful', methods=['GET'])
+def payment_successful():
+    session_id = request.args.get('session_id')
+    # Process the successful payment and retrieve the session ID
+    # Update the payment status in your database
+    return render_template('payment_success.html', session_id=session_id)
+
+
+@app.route('/payment_cancelled', methods=['GET'])
+def payment_cancelled():
+    # Handle the canceled payment
+    return render_template('payment_cancel.html')
+
 
 
 if __name__ == '__main__':

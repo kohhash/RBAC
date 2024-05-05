@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Successful</title>
+  </head>
+  <body>
+    <div class="home-btn">
+      <a href="{{ url_for('home') }}">Home</a>
+    </div>
+    <h1>Payment Successful</h1>
+    <p>Your payment was successful. Thank you for your purchase!</p>
+    <p>Session ID: {{ session_id }}</p>
+  </body>
+</html>

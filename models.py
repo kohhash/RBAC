@@ -8,13 +8,14 @@ from flask import current_app
 db = SQLAlchemy()
 
 
-class User(UserMixin, db.Model):
+class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(10), default='default', nullable=False)
     confirmed = db.Column(db.Boolean, default=False)
+    plan_id = db.Column(db.Integer, db.ForeignKey('plans.id'))
 
     @property
     def password(self):
@@ -54,13 +55,21 @@ class User(UserMixin, db.Model):
             data = s.loads(token.encode('utf-8'))
         except:
             return False
-        user = User.query.get(data.get('reset'))
+        user = Users.query.get(data.get('reset'))
         if user is None:
             return False
         user.password = new_password
         db.session.commit()
         return True
-    
+
     @staticmethod
     def find_by_username(username):
-        return User.query.filter_by(username=username).first()
+        return Users.query.filter_by(username=username).first()
+
+
+# Define Plans Model
+class Plans(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    description = db.Column(db.String(1000), nullable=False)
