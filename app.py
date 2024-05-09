@@ -335,7 +335,7 @@ def privacy_policy():
     return render_template('privacy-policy.html')
 
 
-@app.route('terms-of-use.html')
+@app.route('/terms-of-use.html')
 def terms_of_use():
     return render_template('terms-of-use.html')
 
