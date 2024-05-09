@@ -330,6 +330,16 @@ def admin_users():
     return render_template('admin_manage_users.html', users=users)
 
 
+@app.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy-policy.html')
+
+
+@app.route('terms-of-use.html')
+def terms_of_use():
+    return render_template('terms-of-use.html')
+
+
 @app.route('/admin/users/add', methods=['GET', 'POST'])
 @login_required
 def admin_add_user():
@@ -1140,7 +1150,6 @@ def payment_successful():
 def payment_cancelled():
     # Handle the canceled payment
     return render_template('payment_cancel.html')
-
 
 
 if __name__ == '__main__':

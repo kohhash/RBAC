@@ -347,8 +347,10 @@
     </main>
     <footer>
       <div>Copyright 2024, Posydn Labs. All rights reserved</div>
-      <div>Privacy</div>
-      <div>Terms</div>
+      <div>
+        <a href="{{ url_for('privacy_policy') }}">Privacy</a>
+        <a href="{{ url_for('terms_of_use') }}">Terms</a>
+      </div>
     </footer>
 
     <!-- Modal for plan selection -->
