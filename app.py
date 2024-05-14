@@ -719,6 +719,9 @@ def run_assistant():
         print(e.response)
         return str(e.response)
 
+    except Exception as e:
+        print("Other Error.")
+        return str(e.response)
 
 @app.route('/openai/messages', methods=['POST'])
 @login_required
