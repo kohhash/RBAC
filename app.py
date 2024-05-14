@@ -683,6 +683,7 @@ def run_assistant():
         messages = None
         role = "user"
         content = ""
+        limit = 0
         while role == "user" or len(content) == 0:
             sleep(0.5)
             print("getting msg again...")
@@ -695,6 +696,9 @@ def run_assistant():
                 content = message_to_dict(messages.data[0])["content"]
                 if content:
                     content = content[0]["text"]
+            limit = limit + 1
+            if limit > 60:
+                break
         messages_list_dicts = [message_to_dict(msg) for msg in messages.data]
         messages_json_str = json.dumps(messages_list_dicts, indent=4)
         messages_json_obj = json.loads(messages_json_str)
